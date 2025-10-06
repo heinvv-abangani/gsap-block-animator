@@ -1,7 +1,7 @@
 /**
  * GSAP Block Animator - Editor Entry Point
  *
- * @package GSAPBlockAnimator
+ * @package
  * @since 2.0.0
  */
 

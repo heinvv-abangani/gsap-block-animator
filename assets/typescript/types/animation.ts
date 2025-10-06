@@ -1,7 +1,7 @@
 /**
  * Animation configuration types
  *
- * @package GSAPBlockAnimator
+ * @package
  * @since 2.0.0
  */
 
@@ -103,5 +103,5 @@ export interface AnimationPreviewOptions {
 	element: Element;
 	config: AnimationConfig;
 	onComplete?: () => void;
-	onError?: (error: Error) => void;
+	onError?: ( error: Error ) => void;
 }

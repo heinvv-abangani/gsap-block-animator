@@ -1,7 +1,7 @@
 /**
  * GSAP Block Animator - Frontend Entry Point
  *
- * @package GSAPBlockAnimator
+ * @package
  * @since 2.0.0
  */
 
@@ -23,7 +23,7 @@ class FrontendInitializer {
 	}
 
 	private initialize(): void {
-		if (!this.checkGSAPAvailability()) {
+		if ( ! this.checkGSAPAvailability() ) {
 			return;
 		}
 
@@ -39,8 +39,8 @@ class FrontendInitializer {
 	}
 
 	private registerScrollTriggerIfAvailable(): void {
-		if (typeof window.ScrollTrigger !== 'undefined') {
-			window.gsap.registerPlugin(window.ScrollTrigger);
+		if ( typeof window.ScrollTrigger !== 'undefined' ) {
+			window.gsap.registerPlugin( window.ScrollTrigger );
 		}
 	}
 
@@ -61,24 +61,24 @@ class FrontendInitializer {
 	}
 
 	private bindVisibilityChangeEvents(): void {
-		document.addEventListener('visibilitychange', () => {
-			if (document.hidden) {
-				(window as any).GSAPBlockAnimator?.controller?.getAnimationService()?.destroyAll();
+		document.addEventListener( 'visibilitychange', () => {
+			if ( document.hidden ) {
+				window.GSAPBlockAnimator?.controller?.getAnimationService?.()?.destroyAll?.();
 			} else {
-				(window as any).GSAPBlockAnimator?.controller?.reinitialize();
+				window.GSAPBlockAnimator?.controller?.reinitialize?.();
 			}
-		});
+		} );
 	}
 
 	private bindResizeEventsWithThrottling(): void {
-		window.addEventListener('resize', () => {
-			clearTimeout(this.resizeTimeout);
-			this.resizeTimeout = window.setTimeout(() => {
-				if (typeof window.ScrollTrigger !== 'undefined') {
+		window.addEventListener( 'resize', () => {
+			clearTimeout( this.resizeTimeout );
+			this.resizeTimeout = window.setTimeout( () => {
+				if ( typeof window.ScrollTrigger !== 'undefined' ) {
 					window.ScrollTrigger.refresh();
 				}
-			}, 250);
-		});
+			}, 250 );
+		} );
 	}
 
 	public getSettings(): FrontendSettings {

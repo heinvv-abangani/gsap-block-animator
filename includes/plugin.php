@@ -50,7 +50,7 @@ class Plugin {
 	 * @return self
 	 */
 	public static function get_instance(): self {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
@@ -89,15 +89,15 @@ class Plugin {
 	 * @return void
 	 */
 	public function activate(): void {
-		// Flush rewrite rules
+		// Flush rewrite rules.
 		flush_rewrite_rules();
 
-		// Create plugin options with default values
+		// Create plugin options with default values.
 		$default_options = array(
 			'version'          => GSAP_BLOCK_ANIMATOR_VERSION,
 			'enabled'          => true,
 			'load_gsap'        => true,
-			'gsap_source'      => 'cdn', // cdn or local
+			'gsap_source'      => 'cdn', // cdn or local.
 			'performance_mode' => false,
 			'debug_mode'       => false,
 		);
@@ -118,7 +118,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function deactivate(): void {
-		// Flush rewrite rules
+		// Flush rewrite rules.
 		flush_rewrite_rules();
 
 		/**
@@ -135,11 +135,11 @@ class Plugin {
 	 * @return void
 	 */
 	public static function uninstall(): void {
-		// Remove plugin options
+		// Remove plugin options.
 		delete_option( 'gsap_block_animator_options' );
 
-		// Remove any custom database tables
-		// (None in this version, but placeholder for future use)
+		// Remove any custom database tables.
+		// (None in this version, but placeholder for future use).
 
 		/**
 		 * Fires when the plugin is uninstalled
@@ -183,17 +183,17 @@ class Plugin {
 	 * @return void
 	 */
 	private function setup_hooks(): void {
-		// Enqueue assets
+		// Enqueue assets.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 
-		// Register block extensions
+		// Register block extensions.
 		add_action( 'init', array( $this, 'register_block_extensions' ), 20 );
 
-		// Add body class for styling
+		// Add body class for styling.
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 
-		// Handle admin notices
+		// Handle admin notices.
 		if ( is_admin() ) {
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
@@ -207,12 +207,12 @@ class Plugin {
 	public function enqueue_frontend_assets(): void {
 		$options = get_option( 'gsap_block_animator_options', array() );
 
-		// Load GSAP if enabled
+		// Load GSAP if enabled.
 		if ( $options['load_gsap'] ?? true ) {
 			$this->enqueue_gsap_library();
 		}
 
-		// Enqueue frontend script
+		// Enqueue frontend script.
 		wp_enqueue_script(
 			'gsap-block-animator-frontend',
 			GSAP_BLOCK_ANIMATOR_DIST_URL . 'js/frontend.js',
@@ -221,7 +221,7 @@ class Plugin {
 			true
 		);
 
-		// Localize script with settings
+		// Localize script with settings.
 		wp_localize_script(
 			'gsap-block-animator-frontend',
 			'gsapBlockAnimatorSettings',
@@ -238,10 +238,10 @@ class Plugin {
 	 * @return void
 	 */
 	public function enqueue_editor_assets(): void {
-		// Enqueue GSAP for editor previews
+		// Enqueue GSAP for editor previews.
 		$this->enqueue_gsap_library();
 
-		// Enqueue editor script
+		// Enqueue editor script.
 		wp_enqueue_script(
 			'gsap-block-animator-editor',
 			GSAP_BLOCK_ANIMATOR_DIST_URL . 'js/editor.js',
@@ -260,13 +260,13 @@ class Plugin {
 
 		// TODO: Enqueue editor styles when CSS is built
 		// wp_enqueue_style(
-		//	'gsap-block-animator-editor',
-		//	GSAP_BLOCK_ANIMATOR_DIST_URL . 'css/editor.css',
-		//	array( 'wp-edit-blocks' ),
-		//	GSAP_BLOCK_ANIMATOR_VERSION
+		//     'gsap-block-animator-editor',
+		//     GSAP_BLOCK_ANIMATOR_DIST_URL . 'css/editor.css',
+		//     array( 'wp-edit-blocks' ),
+		//     GSAP_BLOCK_ANIMATOR_VERSION
 		// );
 
-		// Localize script with editor settings
+		// Localize script with editor settings.
 		wp_localize_script(
 			'gsap-block-animator-editor',
 			'gsapBlockAnimatorEditor',
@@ -323,7 +323,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function admin_notices(): void {
-		// Check if GSAP assets are available
+		// Check if GSAP assets are available.
 		$gsap_script = GSAP_BLOCK_ANIMATOR_DIST_URL . 'js/frontend.js';
 		$headers     = @get_headers( $gsap_script );
 
@@ -376,7 +376,7 @@ class Plugin {
 				true
 			);
 		} else {
-			// Local GSAP files (if available)
+			// Local GSAP files (if available).
 			wp_enqueue_script(
 				'gsap',
 				GSAP_BLOCK_ANIMATOR_ASSETS_URL . 'vendor/gsap/gsap.min.js',

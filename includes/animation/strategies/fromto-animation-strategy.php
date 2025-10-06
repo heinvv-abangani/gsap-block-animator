@@ -9,11 +9,11 @@ use GSAPBlockAnimator\Animation\Value_Objects\Animation_Config;
 
 class FromTo_Animation_Strategy implements Animation_Strategy_Interface {
 
-	private const SIGNED_CSS_UNIT_PATTERN = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
+	private const SIGNED_CSS_UNIT_PATTERN   = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
 	private const POSITIVE_CSS_UNIT_PATTERN = '/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
-	private const HEX_COLOR_PATTERN = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
-	private const RGB_COLOR_PATTERN = '/^rgba?\([^)]+\)$/';
-	private const MOVEMENT_UNIT_PATTERN = '/^(-?\d+(?:\.\d+)?)(px|em|rem|%|vw|vh)$/';
+	private const HEX_COLOR_PATTERN         = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
+	private const RGB_COLOR_PATTERN         = '/^rgba?\([^)]+\)$/';
+	private const MOVEMENT_UNIT_PATTERN     = '/^(-?\d+(?:\.\d+)?)(px|em|rem|%|vw|vh)$/';
 
 	public function get_type(): string {
 		return 'fromTo';

@@ -89,8 +89,8 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 			</div>
 
 			{ error && (
-				<Notice 
-					status="error" 
+				<Notice
+					status="error"
 					isDismissible={ true }
 					onRemove={ () => setError( null ) }
 				>
@@ -106,9 +106,9 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 					disabled={ ! config.enabled || isPlaying }
 					className="gsap-preview-button"
 				>
-					{ isPlaying ? 
-						__( 'Playing...', 'gsap-block-animator' ) : 
-						__( 'Preview Animation', 'gsap-block-animator' )
+					{ isPlaying
+						? __( 'Playing...', 'gsap-block-animator' )
+						: __( 'Preview Animation', 'gsap-block-animator' )
 					}
 				</Button>
 

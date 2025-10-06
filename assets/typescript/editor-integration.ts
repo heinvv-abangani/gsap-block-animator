@@ -8,28 +8,28 @@ import type { BlockEditProps } from './types/block';
 
 // Global types handled in types/global.d.ts
 
-const withAnimationPanel = createHigherOrderComponent((BlockEdit: any) => {
-	return (props: BlockEditProps) => {
+const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: any ) => {
+	return ( props: BlockEditProps ) => {
 		const { name: blockName } = props;
 
-		if (shouldSkipBlock(blockName)) {
-			return createElement(BlockEdit, props);
+		if ( shouldSkipBlock( blockName ) ) {
+			return createElement( BlockEdit, props );
 		}
 
 		return createElement(
 			'div',
 			{},
-			createElement(BlockEdit, props),
+			createElement( BlockEdit, props ),
 			createElement(
 				InspectorControls,
 				null,
-				createElement(AnimationPanel, props)
-			)
+				createElement( AnimationPanel, props ),
+			),
 		);
 	};
-}, 'withAnimationPanel');
+}, 'withAnimationPanel' );
 
-const shouldSkipBlock = (blockName: string): boolean => {
+const shouldSkipBlock = ( blockName: string ): boolean => {
 	const skipBlocks = [
 		'core/block',
 		'core/template',
@@ -39,19 +39,19 @@ const shouldSkipBlock = (blockName: string): boolean => {
 		'core/html',
 	];
 
-	return skipBlocks.includes(blockName);
+	return skipBlocks.includes( blockName );
 };
 
 const registerAnimationControls = (): void => {
 	addFilter(
 		'editor.BlockEdit',
 		'gsap-block-animator/add-animation-controls',
-		withAnimationPanel
+		withAnimationPanel,
 	);
 };
 
 // Ensure we register the controls when WordPress is ready
-if (typeof window !== 'undefined' && window.wp && (window.wp as any).hooks) {
+if ( typeof window !== 'undefined' && window.wp && ( window.wp as any ).hooks ) {
 	registerAnimationControls();
 }
 

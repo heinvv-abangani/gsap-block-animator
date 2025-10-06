@@ -8,20 +8,20 @@ interface ActionButtonsSectionProps {
 }
 
 export class ActionButtonsSection {
-	static render({ onReset }: ActionButtonsSectionProps): JSX.Element {
-		return BaseControlSection.render({
+	static render( { onReset }: ActionButtonsSectionProps ): JSX.Element {
+		return BaseControlSection.render( {
 			label: '',
 			className: 'gsap-action-buttons',
 			children: (
 				<Button
 					variant="secondary"
-					onClick={onReset}
+					onClick={ onReset }
 					className="gsap-reset-button"
 				>
-					{__('Reset to Defaults', 'gsap-block-animator')}
+					{ __( 'Reset to Defaults', 'gsap-block-animator' ) }
 				</Button>
-			)
-		});
+			),
+		} );
 	}
 
 	static getDefaultConfig(): AnimationConfig {
@@ -40,9 +40,9 @@ export class ActionButtonsSection {
 		};
 	}
 
-	static createResetHandler(onChange: (updates: Partial<AnimationConfig>) => void) {
+	static createResetHandler( onChange: ( updates: Partial<AnimationConfig> ) => void ) {
 		return () => {
-			onChange(this.getDefaultConfig());
+			onChange( this.getDefaultConfig() );
 		};
 	}
 }

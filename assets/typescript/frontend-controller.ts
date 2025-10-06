@@ -12,17 +12,17 @@ class FrontendController {
 	}
 
 	private bindEvents(): void {
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', this.initializeOnDOMReady.bind(this));
+		if ( 'loading' === document.readyState ) {
+			document.addEventListener( 'DOMContentLoaded', this.initializeOnDOMReady.bind( this ) );
 		} else {
 			this.initializeOnDOMReady();
 		}
 
-		window.addEventListener('beforeunload', this.cleanupBeforeUnload.bind(this));
+		window.addEventListener( 'beforeunload', this.cleanupBeforeUnload.bind( this ) );
 	}
 
 	private initializeOnDOMReady(): void {
-		if (this.initialized) {
+		if ( this.initialized ) {
 			return;
 		}
 
@@ -33,60 +33,60 @@ class FrontendController {
 
 	private initializeAnimations(): void {
 		const animatedElements = this.findAnimatedElements();
-		
-		animatedElements.forEach((element) => {
-			this.processAnimatedElement(element);
-		});
+
+		animatedElements.forEach( ( element ) => {
+			this.processAnimatedElement( element );
+		} );
 	}
 
 	private findAnimatedElements(): NodeListOf<Element> {
-		return document.querySelectorAll('[data-gsap-animation]');
+		return document.querySelectorAll( '[data-gsap-animation]' );
 	}
 
-	private processAnimatedElement(element: Element): void {
-		const config = this.extractAnimationConfig(element);
-		
-		if (!this.isValidConfig(config)) {
+	private processAnimatedElement( element: Element ): void {
+		const config = this.extractAnimationConfig( element );
+
+		if ( ! this.isValidConfig( config ) ) {
 			return;
 		}
 
-		this.createAnimation(element, config);
+		this.createAnimation( element, config );
 	}
 
-	private extractAnimationConfig(element: Element): AnimationConfig | null {
-		const configData = element.getAttribute('data-gsap-animation');
-		
-		if (!configData) {
+	private extractAnimationConfig( element: Element ): AnimationConfig | null {
+		const configData = element.getAttribute( 'data-gsap-animation' );
+
+		if ( ! configData ) {
 			return null;
 		}
 
 		try {
-			return JSON.parse(configData) as AnimationConfig;
+			return JSON.parse( configData ) as AnimationConfig;
 		} catch {
 			return null;
 		}
 	}
 
-	private isValidConfig(config: AnimationConfig | null): config is AnimationConfig {
-		return config !== null && 
-			config.enabled && 
-			typeof config.type === 'string' && 
-			typeof config.trigger === 'string';
+	private isValidConfig( config: AnimationConfig | null ): config is AnimationConfig {
+		return config !== null &&
+			config.enabled &&
+			'string' === typeof config.type &&
+			'string' === typeof config.trigger;
 	}
 
-	private createAnimation(element: Element, config: AnimationConfig): void {
+	private createAnimation( element: Element, config: AnimationConfig ): void {
 		try {
-			this.animationService.createProductionAnimation(element, config);
-		} catch (error) {
+			this.animationService.createProductionAnimation( element, config );
+		} catch ( error ) {
 			// Silent error handling for production
 		}
 	}
 
 	private initializeIntersectionObserver(): void {
-		if (this.hasScrollTriggeredElements()) {
+		if ( this.hasScrollTriggeredElements() ) {
 			this.observer = new IntersectionObserver(
-				this.handleIntersectionChanges.bind(this),
-				this.getIntersectionObserverOptions()
+				this.handleIntersectionChanges.bind( this ),
+				this.getIntersectionObserverOptions(),
 			);
 
 			this.observeScrollElements();
@@ -94,7 +94,7 @@ class FrontendController {
 	}
 
 	private hasScrollTriggeredElements(): boolean {
-		return document.querySelector('[data-gsap-trigger="scroll"]') !== null;
+		return document.querySelector( '[data-gsap-trigger="scroll"]' ) !== null;
 	}
 
 	private getIntersectionObserverOptions(): IntersectionObserverInit {
@@ -106,34 +106,34 @@ class FrontendController {
 	}
 
 	private observeScrollElements(): void {
-		const scrollElements = document.querySelectorAll('[data-gsap-trigger="scroll"]');
-		
-		scrollElements.forEach((element) => {
-			if (this.observer) {
-				this.observer.observe(element);
+		const scrollElements = document.querySelectorAll( '[data-gsap-trigger="scroll"]' );
+
+		scrollElements.forEach( ( element ) => {
+			if ( this.observer ) {
+				this.observer.observe( element );
 			}
-		});
+		} );
 	}
 
-	private handleIntersectionChanges(entries: IntersectionObserverEntry[]): void {
-		entries.forEach((entry) => {
-			if (entry.isIntersecting) {
-				this.triggerScrollAnimation(entry.target);
+	private handleIntersectionChanges( entries: IntersectionObserverEntry[] ): void {
+		entries.forEach( ( entry ) => {
+			if ( entry.isIntersecting ) {
+				this.triggerScrollAnimation( entry.target );
 			}
-		});
+		} );
 	}
 
-	private triggerScrollAnimation(element: Element): void {
-		const blockId = this.extractBlockId(element);
-		
-		if (blockId) {
-			this.animationService.stopPreview(blockId);
+	private triggerScrollAnimation( element: Element ): void {
+		const blockId = this.extractBlockId( element );
+
+		if ( blockId ) {
+			this.animationService.stopPreview( blockId );
 		}
 	}
 
-	private extractBlockId(element: Element): string | null {
-		return element.getAttribute('data-gsap-block-id') || 
-			element.getAttribute('data-block');
+	private extractBlockId( element: Element ): string | null {
+		return element.getAttribute( 'data-gsap-block-id' ) ||
+			element.getAttribute( 'data-block' );
 	}
 
 	private cleanupBeforeUnload(): void {
@@ -142,7 +142,7 @@ class FrontendController {
 	}
 
 	private destroyIntersectionObserver(): void {
-		if (this.observer) {
+		if ( this.observer ) {
 			this.observer.disconnect();
 			this.observer = null;
 		}
@@ -166,8 +166,8 @@ class FrontendController {
 
 const frontendController = new FrontendController();
 
-if (typeof window !== 'undefined') {
-	(window as any).GSAPBlockAnimator = {
+if ( typeof window !== 'undefined' ) {
+	( window as any ).GSAPBlockAnimator = {
 		controller: frontendController,
 		AnimationService,
 	};

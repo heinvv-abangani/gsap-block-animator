@@ -1,7 +1,7 @@
 /**
  * WordPress block related types
  *
- * @package GSAPBlockAnimator
+ * @package
  * @since 2.0.0
  */
 
@@ -14,7 +14,7 @@ export interface BlockAttributes {
 
 export interface BlockProps {
 	attributes: BlockAttributes;
-	setAttributes: (attributes: Partial<BlockAttributes>) => void;
+	setAttributes: ( attributes: Partial<BlockAttributes> ) => void;
 	clientId: string;
 	name: string;
 	isSelected: boolean;

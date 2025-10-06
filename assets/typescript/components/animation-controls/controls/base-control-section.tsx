@@ -7,13 +7,14 @@ interface BaseControlSectionProps {
 }
 
 export class BaseControlSection {
-	static render({ label, className, children }: BaseControlSectionProps): JSX.Element {
+	static render( { label, className, children }: BaseControlSectionProps ): JSX.Element {
 		return (
 			<BaseControl
-				label={label}
-				className={className}
+				id={ `gsap-control-${ label.toLowerCase().replace( /\s+/g, '-' ) }` }
+				label={ label }
+				className={ className }
 			>
-				{children}
+				{ children }
 			</BaseControl>
 		);
 	}

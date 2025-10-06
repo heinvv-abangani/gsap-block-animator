@@ -6,14 +6,14 @@ namespace GSAPBlockAnimator\Validation;
 
 class Property_Validator {
 
-	private const HEX_COLOR_PATTERN              = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
-	private const RGB_COLOR_PATTERN              = '/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[01](?:\.\d+)?)?\s*\)$/';
-	private const HSL_COLOR_PATTERN              = '/^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[01](?:\.\d+)?)?\s*\)$/';
-	private const CSS_UNIT_PATTERN               = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh|vmin|vmax|ex|ch|pt|pc|in|cm|mm)$/';
-	private const POSITIVE_CSS_UNIT_PATTERN      = '/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
-	private const SIGNED_CSS_UNIT_PATTERN        = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
-	private const BLOCK_NAME_PATTERN             = '/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$/';
-	private const SECURITY_FORBIDDEN_PATTERN     = '/[^\w\s\-\.#\[\]=:,()\'>+~]/';
+	private const HEX_COLOR_PATTERN          = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
+	private const RGB_COLOR_PATTERN          = '/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[01](?:\.\d+)?)?\s*\)$/';
+	private const HSL_COLOR_PATTERN          = '/^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[01](?:\.\d+)?)?\s*\)$/';
+	private const CSS_UNIT_PATTERN           = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh|vmin|vmax|ex|ch|pt|pc|in|cm|mm)$/';
+	private const POSITIVE_CSS_UNIT_PATTERN  = '/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
+	private const SIGNED_CSS_UNIT_PATTERN    = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
+	private const BLOCK_NAME_PATTERN         = '/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$/';
+	private const SECURITY_FORBIDDEN_PATTERN = '/[^\w\s\-\.#\[\]=:,()\'>+~]/';
 
 	public static function validate_css_color( string $value ): bool {
 		$keywords = array(

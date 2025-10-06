@@ -1,7 +1,7 @@
 /**
  * Control types for animation settings
  *
- * @package GSAPBlockAnimator
+ * @package
  * @since 2.0.0
  */
 
@@ -10,7 +10,7 @@ export type ControlType = 'range' | 'select' | 'toggle' | 'text' | 'number' | 'c
 export interface BaseControlProps<T = unknown> {
 	label: string;
 	value: T;
-	onChange: (value: T) => void;
+	onChange: ( value: T ) => void;
 	help?: string;
 	className?: string;
 	disabled?: boolean;
@@ -56,9 +56,9 @@ export interface ControlConfig {
 	props: BaseControlProps;
 }
 
-export type ControlProps = 
+export type ControlProps =
 	| RangeControlProps
-	| SelectControlProps 
+	| SelectControlProps
 	| ToggleControlProps
 	| TextControlProps
 	| NumberControlProps

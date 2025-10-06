@@ -51,7 +51,7 @@ class Animation_Validator {
 
 	public function validate_or_throw( array $data ): void {
 		if ( ! $this->validate( $data ) ) {
-			throw Validation_Exception::from_errors( $this->errors );
+			throw Validation_Exception::from_errors( $this->get_errors() );
 		}
 	}
 
