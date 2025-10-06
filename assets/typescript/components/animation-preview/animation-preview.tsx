@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { Button, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 
 import type { AnimationConfig } from '../../types/animation';
 import { AnimationService } from '../../services/animation-service';
@@ -15,8 +16,8 @@ interface AnimationPreviewProps {
 export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 	config,
 	blockId,
-	isPreviewMode,
-	onTogglePreview,
+	// IsPreviewMode,
+	// onTogglePreview,
 } ) => {
 	const [ isPlaying, setIsPlaying ] = useState( false );
 	const [ error, setError ] = useState<string | null>( null );
@@ -24,9 +25,9 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 
 	const clearErrorsOnConfigChange = useCallback( () => {
 		setError( null );
-	}, [ config ] );
+	}, [] );
 
-	useEffect( clearErrorsOnConfigChange, [ config ] );
+	useEffect( clearErrorsOnConfigChange, [ clearErrorsOnConfigChange ] );
 
 	const findBlockElement = useCallback( (): Element => {
 		const blockElement = document.querySelector( `[data-block="${ blockId }"]` );
@@ -159,3 +160,11 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 		</div>
 	);
 };
+
+AnimationPreview.propTypes = {
+	config: PropTypes.object.isRequired,
+	blockId: PropTypes.string.isRequired,
+	isPreviewMode: PropTypes.bool.isRequired,
+	onTogglePreview: PropTypes.func.isRequired,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;

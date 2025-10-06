@@ -1,6 +1,7 @@
 import { useState, useCallback } from '@wordpress/element';
 import { PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 
 import type { BlockEditProps } from '../../types/block';
 import type { AnimationConfig } from '../../types/animation';
@@ -17,6 +18,7 @@ export const AnimationPanel: React.FC<AnimationPanelProps> = ( {
 	clientId,
 	name: blockName,
 } ) => {
+	
 	const [ isPreviewMode, setIsPreviewMode ] = useState( false );
 
 	const getDefaultAnimationConfig = (): AnimationConfig => ( {
@@ -53,7 +55,7 @@ export const AnimationPanel: React.FC<AnimationPanelProps> = ( {
 	const togglePreviewMode = useCallback( () => {
 		setIsPreviewMode( ! isPreviewMode );
 	}, [ isPreviewMode ] );
-
+	
 	return (
 		<PanelBody
 			title={ __( 'GSAP Animation', 'gsap-block-animator' ) }
@@ -78,3 +80,11 @@ export const AnimationPanel: React.FC<AnimationPanelProps> = ( {
 		</PanelBody>
 	);
 };
+
+AnimationPanel.propTypes = {
+	attributes: PropTypes.object.isRequired,
+	setAttributes: PropTypes.func.isRequired,
+	clientId: PropTypes.string.isRequired,
+	name: PropTypes.string.isRequired,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;

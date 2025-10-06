@@ -188,7 +188,7 @@ class Plugin {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 
 		// Register block extensions.
-		add_action( 'init', array( $this, 'register_block_extensions' ), 20 );
+		add_action( 'init', array( $this, 'register_block_extensions' ), 5 );
 
 		// Add body class for styling.
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
@@ -257,14 +257,6 @@ class Plugin {
 			GSAP_BLOCK_ANIMATOR_VERSION,
 			true
 		);
-
-		// TODO: Enqueue editor styles when CSS is built
-		// wp_enqueue_style(
-		//     'gsap-block-animator-editor',
-		//     GSAP_BLOCK_ANIMATOR_DIST_URL . 'css/editor.css',
-		//     array( 'wp-edit-blocks' ),
-		//     GSAP_BLOCK_ANIMATOR_VERSION
-		// );
 
 		// Localize script with editor settings.
 		wp_localize_script(
@@ -359,7 +351,7 @@ class Plugin {
 		$options = get_option( 'gsap_block_animator_options', array() );
 		$source  = $options['gsap_source'] ?? 'cdn';
 
-		if ( $source === 'cdn' ) {
+		if ( 'cdn' === $source ) {
 			wp_enqueue_script(
 				'gsap',
 				'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js',
@@ -403,6 +395,8 @@ class Plugin {
 
 	/**
 	 * Prevent unserialization
+	 *
+	 * @throws \Exception When attempting to unserialize singleton.
 	 */
 	public function __wakeup(): void {
 		throw new \Exception( 'Cannot unserialize singleton' );

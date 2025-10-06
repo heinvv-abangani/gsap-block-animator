@@ -54,6 +54,11 @@ class BlockExtensionService {
 			return $args;
 		}
 
+		// Initialize attributes array if not exists
+		if ( ! isset( $args['attributes'] ) ) {
+			$args['attributes'] = array();
+		}
+
 		// Add gsapAnimation attribute
 		$args['attributes']['gsapAnimation'] = array(
 			'type'    => 'object',

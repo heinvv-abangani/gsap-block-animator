@@ -5,10 +5,13 @@
  * @since 2.0.0
  */
 
+import * as React from 'react';
 import { createElement } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls } from '@wordpress/block-editor';
+// Import { InspectorControls } from '@wordpress/block-editor';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const { InspectorControls } = ( window.wp as any ).blockEditor;
 import {
 	PanelBody,
 	ToggleControl,
@@ -30,7 +33,7 @@ import type { BlockEditProps } from '../../types/block';
 interface GSAPAnimationPanelProps extends BlockEditProps {
     attributes: {
         gsapAnimation?: AnimationConfig;
-        [key: string]: any;
+        [key: string]: unknown;
     };
     setAttributes: ( attributes: Partial<{ gsapAnimation: AnimationConfig }> ) => void;
 }
@@ -168,8 +171,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 	/**
 	 * Render animation controls
 	 */
-	const renderControls = (): any[] => {
-		const controls: any[] = [];
+	const renderControls = (): React.ReactElement[] => {
+		const controls: React.ReactElement[] = [];
 
 		// Enable Animation Toggle
 		controls.push(
@@ -193,7 +196,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					label: __( 'Animation Type', 'gsap-block-animator' ),
 					value: gsapAnimation.type,
 					options: ANIMATION_TYPE_OPTIONS,
-					onChange: ( type: any ) => updateAnimation( { type: type as AnimationType } ),
+					onChange: ( type: string ) => updateAnimation( { type: type as AnimationType } ),
 				} ),
 			);
 
@@ -204,7 +207,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					label: __( 'Trigger', 'gsap-block-animator' ),
 					value: gsapAnimation.trigger,
 					options: TRIGGER_TYPE_OPTIONS,
-					onChange: ( trigger: any ) => updateAnimation( { trigger: trigger as TriggerType } ),
+					onChange: ( trigger: string ) => updateAnimation( { trigger: trigger as TriggerType } ),
 				} ),
 			);
 
@@ -408,7 +411,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
  * Higher Order Component to add the GSAP animation panel
  */
 const withGSAPPanel = createHigherOrderComponent(
-	( BlockEdit: React.ComponentType<any> ) => {
+	( BlockEdit: React.ComponentType<BlockEditProps> ) => {
 		return ( props: BlockEditProps ) => {
 			const { name: blockName } = props;
 
@@ -431,9 +434,10 @@ const withGSAPPanel = createHigherOrderComponent(
 				{},
 				createElement( BlockEdit, props ),
 				createElement(
-					InspectorControls,
-					null,
-					createElement( GSAPAnimationPanel, props ),
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				InspectorControls as any,
+				null,
+				createElement( GSAPAnimationPanel, props ),
 				),
 			);
 		};
@@ -443,10 +447,10 @@ const withGSAPPanel = createHigherOrderComponent(
 
 /**
  * Add gsapAnimation attribute to all blocks
- * @param settings
- * @param name
+ * @param {Record<string, unknown>} settings - Block settings
+ * @param {string}                  name     - Block name
  */
-function addGSAPAttributes( settings: any, name: string ) {
+function addGSAPAttributes( settings: Record<string, unknown>, name: string ) {
 	// Skip certain blocks
 	const skipBlocks = [
 		'core/block',
@@ -464,7 +468,7 @@ function addGSAPAttributes( settings: any, name: string ) {
 	return {
 		...settings,
 		attributes: {
-			...settings.attributes,
+			...( settings.attributes || {} ),
 			gsapAnimation: {
 				type: 'object',
 				default: DEFAULT_ANIMATION_CONFIG,

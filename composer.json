@@ -23,9 +23,9 @@
         "brain/monkey": "^2.6"
     },
     "autoload": {
-        "psr-4": {
-            "GSAPBlockAnimator\\": "includes/"
-        }
+        "files": [
+            "includes/autoloader.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -10,7 +10,7 @@ import type { AnimationConfig } from './types/animation';
 // Global types are included automatically via tsconfig.json
 
 interface AnimationProperties {
-    [key: string]: any;
+    [key: string]: unknown;
     duration?: number;
     delay?: number;
     ease?: string;
@@ -59,11 +59,16 @@ export class FrontendAnimationController {
 	 * Initialize all animations
 	 */
 	private initializeAnimations(): void {
+		console.log('🎬 Frontend Controller: Initializing animations...');
 		const animatedElements = this.findAnimatedElements();
+		console.log(`📊 Found ${animatedElements.length} animated elements:`, animatedElements);
 
 		animatedElements.forEach( ( element: Element ) => {
+			console.log('🎯 Processing animated element:', element);
 			this.processAnimatedElement( element );
 		} );
+		
+		console.log('✅ Animation initialization complete');
 	}
 
 	/**
@@ -75,19 +80,23 @@ export class FrontendAnimationController {
 
 	/**
 	 * Process a single animated element
-	 * @param element
+	 * @param {Element} element - The DOM element to process
 	 */
 	private processAnimatedElement( element: Element ): void {
 		const animationConfig = this.extractAnimationConfig( element );
+		console.log('🔍 Animation config extracted:', animationConfig);
 
 		if ( this.isValidConfig( animationConfig ) ) {
+			console.log('✅ Valid config, creating animation');
 			this.createAnimation( element, animationConfig );
+		} else {
+			console.log('❌ Invalid animation config');
 		}
 	}
 
 	/**
 	 * Extract animation configuration from element
-	 * @param element
+	 * @param {Element} element - The DOM element
 	 */
 	private extractAnimationConfig( element: Element ): AnimationConfig | null {
 		const animationData = element.getAttribute( 'data-gsap-animation' );
@@ -106,7 +115,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Validate animation configuration
-	 * @param config
+	 * @param {AnimationConfig | null} config - The animation configuration to validate
 	 */
 	private isValidConfig( config: AnimationConfig | null ): config is AnimationConfig {
 		return config !== null &&
@@ -117,24 +126,30 @@ export class FrontendAnimationController {
 
 	/**
 	 * Create animation for element
-	 * @param element
-	 * @param config
+	 * @param {Element}         element - The DOM element
+	 * @param {AnimationConfig} config  - The animation configuration
 	 */
 	private createAnimation( element: Element, config: AnimationConfig ): void {
 		try {
+			console.log('🎭 Creating animation for element:', element, 'with config:', config);
+			
 			if ( ! this.checkGSAPAvailability() ) {
+				console.warn('⚠️ GSAP not available during animation creation');
 				return;
 			}
 
 			const properties = this.prepareAnimationProperties( config );
+			console.log('🔧 Prepared animation properties:', properties);
 
 			if ( ! this.hasAnimationProperties( properties ) ) {
+				console.warn('⚠️ No valid animation properties found');
 				return;
 			}
 
+			console.log('🚀 Executing animation with trigger:', config.trigger);
 			this.executeAnimationByTrigger( element, config, properties );
 		} catch ( error ) {
-			// Silent error handling for production
+			console.error('❌ Error creating animation:', error);
 		}
 	}
 
@@ -147,7 +162,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Prepare animation properties from config
-	 * @param config
+	 * @param {AnimationConfig} config - The animation configuration
 	 */
 	private prepareAnimationProperties( config: AnimationConfig ): AnimationProperties {
 		const properties: AnimationProperties = {
@@ -195,7 +210,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Check if properties contain actual animation values
-	 * @param properties
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private hasAnimationProperties( properties: AnimationProperties ): boolean {
 		const animationKeys = [ 'x', 'y', 'rotation', 'scale', 'opacity' ];
@@ -204,9 +219,9 @@ export class FrontendAnimationController {
 
 	/**
 	 * Execute animation based on trigger type
-	 * @param element
-	 * @param config
-	 * @param properties
+	 * @param {Element}             element    - The DOM element
+	 * @param {AnimationConfig}     config     - The animation configuration
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private executeAnimationByTrigger( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		switch ( config.trigger ) {
@@ -229,37 +244,42 @@ export class FrontendAnimationController {
 
 	/**
 	 * Create page load animation
-	 * @param element
-	 * @param config
-	 * @param properties
+	 * @param {Element}             element    - The DOM element
+	 * @param {AnimationConfig}     config     - The animation configuration
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private createPageLoadAnimation( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		const gsap = window.gsap;
+		console.log(`🎬 Creating ${config.type} page load animation for:`, element);
 
 		switch ( config.type ) {
 			case 'to':
+				console.log('🎯 Executing gsap.to with properties:', properties);
 				gsap.to( element, properties );
 				break;
 			case 'from':
+				console.log('🎯 Executing gsap.from with properties:', properties);
 				gsap.from( element, properties );
 				break;
 			case 'fromTo':
 				const fromProps = this.getFromProperties();
+				console.log('🎯 Executing gsap.fromTo with from:', fromProps, 'to:', properties);
 				gsap.fromTo( element, fromProps, properties );
 				break;
 			case 'set':
+				console.log('🎯 Executing gsap.set with properties:', properties);
 				gsap.set( element, properties );
 				break;
 			default:
-                // Unknown animation type - silently ignored
+				console.warn('⚠️ Unknown animation type:', config.type);
 		}
 	}
 
 	/**
 	 * Create scroll-triggered animation
-	 * @param element
-	 * @param config
-	 * @param properties
+	 * @param {Element}             element    - The DOM element
+	 * @param {AnimationConfig}     config     - The animation configuration
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private createScrollAnimation( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		if ( 'undefined' === typeof window.ScrollTrigger ) {
@@ -295,9 +315,9 @@ export class FrontendAnimationController {
 
 	/**
 	 * Create click-triggered animation
-	 * @param element
-	 * @param config
-	 * @param properties
+	 * @param {Element}             element    - The DOM element
+	 * @param {AnimationConfig}     config     - The animation configuration
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private createClickAnimation( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		const gsap = window.gsap;
@@ -320,9 +340,9 @@ export class FrontendAnimationController {
 
 	/**
 	 * Create hover-triggered animation
-	 * @param element
-	 * @param config
-	 * @param properties
+	 * @param {Element}             element    - The DOM element
+	 * @param {AnimationConfig}     config     - The animation configuration
+	 * @param {AnimationProperties} properties - The animation properties
 	 */
 	private createHoverAnimation( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		const gsap = window.gsap;
@@ -406,7 +426,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Handle intersection observer changes
-	 * @param entries
+	 * @param {IntersectionObserverEntry[]} entries - The intersection observer entries
 	 */
 	private handleIntersectionChanges( entries: IntersectionObserverEntry[] ): void {
 		entries.forEach( ( entry: IntersectionObserverEntry ) => {
@@ -418,7 +438,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Trigger scroll animation for element
-	 * @param element
+	 * @param {Element} element - The DOM element
 	 */
 	private triggerScrollAnimation( element: Element ): void {
 		const blockId = this.extractBlockId( element );
@@ -430,7 +450,7 @@ export class FrontendAnimationController {
 
 	/**
 	 * Extract block ID from element
-	 * @param element
+	 * @param {Element} element - The DOM element
 	 */
 	private extractBlockId( element: Element ): string | null {
 		return element.getAttribute( 'data-gsap-block-id' ) ||

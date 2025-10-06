@@ -125,7 +125,7 @@ export const EASING_FUNCTIONS: Record<EaseType, { label: string; curve: string }
 export interface EnhancedGSAPPanelProps {
     attributes: {
         gsapAnimation?: AnimationConfig;
-        [key: string]: any;
+        [key: string]: unknown;
     };
     setAttributes: ( attributes: Partial<{ gsapAnimation: AnimationConfig }> ) => void;
     clientId: string;
@@ -139,7 +139,7 @@ export interface EnhancedGSAPPanelProps {
 export class AnimationValidator {
 	/**
 	 * Validate CSS unit values
-	 * @param value
+	 * @param {string} value - The CSS value to validate
 	 */
 	static validateCSSUnit( value: string ): boolean {
 		const CSS_UNIT_PATTERN = /^-?\d+(\.\d+)?(px|em|rem|%|vw|vh|vmin|vmax|ex|ch|pt|pc|in|cm|mm)$/;
@@ -148,9 +148,9 @@ export class AnimationValidator {
 
 	/**
 	 * Validate numeric range
-	 * @param value
-	 * @param min
-	 * @param max
+	 * @param {number} value - The value to validate
+	 * @param {number} min   - Minimum allowed value
+	 * @param {number} max   - Maximum allowed value
 	 */
 	static validateRange( value: number, min: number, max: number ): boolean {
 		return value >= min && value <= max;
@@ -158,7 +158,7 @@ export class AnimationValidator {
 
 	/**
 	 * Validate animation configuration
-	 * @param config
+	 * @param {AnimationConfig} config - The animation configuration to validate
 	 */
 	static validateConfig( config: AnimationConfig ): { isValid: boolean; errors: string[] } {
 		const errors: string[] = [];
@@ -207,8 +207,8 @@ export class AnimationStateManager {
 
 	/**
 	 * Store animation configuration for a block
-	 * @param blockId
-	 * @param config
+	 * @param {string}          blockId - The block ID
+	 * @param {AnimationConfig} config  - The animation configuration
 	 */
 	static setConfig( blockId: string, config: AnimationConfig ): void {
 		this.configs.set( blockId, config );
@@ -216,7 +216,7 @@ export class AnimationStateManager {
 
 	/**
 	 * Get animation configuration for a block
-	 * @param blockId
+	 * @param {string} blockId - The block ID
 	 */
 	static getConfig( blockId: string ): AnimationConfig | undefined {
 		return this.configs.get( blockId );
@@ -239,7 +239,7 @@ export class AnimationStateManager {
 
 	/**
 	 * Clean up removed blocks
-	 * @param existingBlockIds
+	 * @param {string[]} existingBlockIds - Array of existing block IDs
 	 */
 	static cleanup( existingBlockIds: string[] ): void {
 		const configKeys = Array.from( this.configs.keys() );
@@ -277,7 +277,7 @@ export class PanelHelpers {
 
 	/**
 	 * Generate configuration summary text
-	 * @param config
+	 * @param {AnimationConfig} config - The animation configuration
 	 */
 	static getConfigSummary( config: AnimationConfig ): string {
 		const parts = [
@@ -295,7 +295,7 @@ export class PanelHelpers {
 
 	/**
 	 * Check if animation has meaningful properties
-	 * @param config
+	 * @param {AnimationConfig} config - The animation configuration
 	 */
 	static hasAnimationProperties( config: AnimationConfig ): boolean {
 		const props = config.properties;
@@ -313,14 +313,14 @@ export class PanelHelpers {
 export class EventHandlers {
 	/**
 	 * Handle animation property updates
-	 * @param gsapAnimation
-	 * @param setAttributes
+	 * @param {AnimationConfig} gsapAnimation - Current animation configuration
+	 * @param {Function}        setAttributes - Attribute setter function
 	 */
 	static createPropertyUpdater(
 		gsapAnimation: AnimationConfig,
-		setAttributes: ( attrs: any ) => void,
+		setAttributes: ( attrs: Record<string, unknown> ) => void,
 	) {
-		return ( key: string, value: any ) => {
+		return ( key: string, value: unknown ) => {
 			const currentProperties = gsapAnimation.properties || {};
 			setAttributes( {
 				gsapAnimation: {
@@ -333,14 +333,14 @@ export class EventHandlers {
 
 	/**
 	 * Handle timing updates
-	 * @param gsapAnimation
-	 * @param setAttributes
+	 * @param {AnimationConfig} gsapAnimation - Current animation configuration
+	 * @param {Function}        setAttributes - Attribute setter function
 	 */
 	static createTimingUpdater(
 		gsapAnimation: AnimationConfig,
-		setAttributes: ( attrs: any ) => void,
+		setAttributes: ( attrs: Record<string, unknown> ) => void,
 	) {
-		return ( key: keyof AnimationConfig['timing'], value: any ) => {
+		return ( key: keyof AnimationConfig['timing'], value: unknown ) => {
 			setAttributes( {
 				gsapAnimation: {
 					...gsapAnimation,
@@ -352,14 +352,14 @@ export class EventHandlers {
 
 	/**
 	 * Handle timeline updates
-	 * @param gsapAnimation
-	 * @param setAttributes
+	 * @param {AnimationConfig} gsapAnimation - Current animation configuration
+	 * @param {Function}        setAttributes - Attribute setter function
 	 */
 	static createTimelineUpdater(
 		gsapAnimation: AnimationConfig,
-		setAttributes: ( attrs: any ) => void,
+		setAttributes: ( attrs: Record<string, unknown> ) => void,
 	) {
-		return ( key: keyof TimelineConfig, value: any ) => {
+		return ( key: keyof TimelineConfig, value: unknown ) => {
 			setAttributes( {
 				gsapAnimation: {
 					...gsapAnimation,
@@ -386,6 +386,7 @@ export const GSAPPanelUtils = {
 
 // Make it available globally for the JavaScript implementation
 if ( typeof window !== 'undefined' ) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	( window as any ).GSAPPanelUtils = GSAPPanelUtils;
 }
 

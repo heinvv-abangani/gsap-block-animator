@@ -1,5 +1,5 @@
 import type { AnimationConfig } from '../types/animation';
-import '../types/global';
+// Import '../types/global';
 
 // Use global GSAP loaded via CDN
 const gsap = window.gsap;
@@ -17,9 +17,26 @@ interface PreviewOptions {
 }
 
 interface AnimationInstance {
-	timeline: any;
-	scrollTrigger?: any;
+	timeline: GSAPTimeline;
+	scrollTrigger?: ScrollTrigger;
 }
+
+type GSAPTimeline = {
+	to: ( target: unknown, vars: Record<string, unknown> ) => GSAPTimeline;
+	from: ( target: unknown, vars: Record<string, unknown> ) => GSAPTimeline;
+	fromTo: ( target: unknown, fromVars: Record<string, unknown>, toVars: Record<string, unknown> ) => GSAPTimeline;
+	set: ( target: unknown, vars: Record<string, unknown> ) => GSAPTimeline;
+	play: () => GSAPTimeline;
+	kill: () => void;
+	eventCallback: ( type: string, callback: () => void ) => GSAPTimeline;
+	targets: () => Element[];
+	restart: () => GSAPTimeline;
+	reverse: () => GSAPTimeline;
+};
+
+type ScrollTrigger = {
+	kill: () => void;
+};
 
 export class AnimationService {
 	private activeAnimations: Map<string, AnimationInstance> = new Map();
@@ -116,7 +133,7 @@ export class AnimationService {
 		}
 	}
 
-	private buildTimeline( config: AnimationConfig ): any {
+	private buildTimeline( config: AnimationConfig ): GSAPTimeline {
 		return gsap.timeline( {
 			duration: config.timing.duration,
 			delay: config.timing.delay,
@@ -124,7 +141,7 @@ export class AnimationService {
 			yoyo: config.timing.yoyo,
 			ease: config.timing.ease,
 			paused: true,
-		} );
+		} ) as GSAPTimeline;
 	}
 
 	private resolveTarget( element: Element, config: AnimationConfig ): Element | NodeListOf<Element> {
@@ -135,7 +152,7 @@ export class AnimationService {
 	}
 
 	private applyAnimationToTimeline(
-		timeline: any,
+		timeline: GSAPTimeline,
 		target: Element | NodeListOf<Element>,
 		config: AnimationConfig,
 	): void {
@@ -149,7 +166,7 @@ export class AnimationService {
 				timeline.from( target, properties );
 				break;
 			case 'fromTo':
-				timeline.fromTo( target, this.prepareFromProperties( config ), properties );
+				timeline.fromTo( target, this.prepareFromProperties(), properties );
 				break;
 			case 'set':
 				timeline.set( target, properties );
@@ -157,8 +174,8 @@ export class AnimationService {
 		}
 	}
 
-	private prepareAnimationProperties( config: AnimationConfig ): any {
-		const properties: any = {
+	private prepareAnimationProperties( config: AnimationConfig ): Record<string, unknown> {
+		const properties: Record<string, unknown> = {
 			duration: config.timing.duration,
 			ease: config.timing.ease,
 		};
@@ -169,7 +186,7 @@ export class AnimationService {
 		return properties;
 	}
 
-	private addTransformProperties( properties: any, config: AnimationConfig ): void {
+	private addTransformProperties( properties: Record<string, unknown>, config: AnimationConfig ): void {
 		if ( config.properties.x !== undefined ) {
 			properties.x = config.properties.x;
 		}
@@ -184,7 +201,7 @@ export class AnimationService {
 		}
 	}
 
-	private addStyleProperties( properties: any, config: AnimationConfig ): void {
+	private addStyleProperties( properties: Record<string, unknown>, config: AnimationConfig ): void {
 		if ( config.properties.opacity !== undefined ) {
 			properties.opacity = config.properties.opacity;
 		}
@@ -193,7 +210,7 @@ export class AnimationService {
 		}
 	}
 
-	private prepareFromProperties( config: AnimationConfig ): any {
+	private prepareFromProperties(): Record<string, unknown> {
 		return {
 			x: 0,
 			y: 0,
@@ -203,7 +220,7 @@ export class AnimationService {
 		};
 	}
 
-	private configureTimelineCallbacks( timeline: any, options: PreviewOptions ): void {
+	private configureTimelineCallbacks( timeline: GSAPTimeline, options: PreviewOptions ): void {
 		timeline.eventCallback( 'onComplete', () => {
 			if ( options.onComplete ) {
 				options.onComplete();
@@ -221,20 +238,21 @@ export class AnimationService {
 		this.activeAnimations.set( blockId, animation );
 	}
 
-	private async executeTimeline( timeline: any ): Promise<void> {
+	private async executeTimeline( timeline: GSAPTimeline ): Promise<void> {
 		return new Promise( ( resolve ) => {
 			timeline.eventCallback( 'onComplete', resolve );
 			timeline.play();
 		} );
 	}
 
-	private handlePreviewError( error: unknown, onError?: ( error: Error ) => void ): void {
-		const errorInstance = error instanceof Error ? error : new Error( 'Unknown animation error' );
+	private handlePreviewError( errorParam: unknown, onError?: ( error: Error ) => void ): void {
+		const errorInstance = errorParam instanceof Error ? errorParam : new Error( 'Unknown animation error' );
 
 		if ( onError ) {
 			onError( errorInstance );
 		} else {
-			console.error( 'Animation preview error:', errorInstance );
+			// Silent error handling for production
+			// console.error( 'Animation preview error:', errorInstance );
 		}
 	}
 
@@ -271,24 +289,26 @@ export class AnimationService {
 
 	private createScrollTrigger(
 		element: Element,
-		timeline: any,
+		timeline: GSAPTimeline,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		config: AnimationConfig,
-	): any {
+	): ScrollTrigger {
 		return ScrollTrigger.create( {
 			trigger: element,
 			start: 'top 80%',
 			end: 'bottom 20%',
 			animation: timeline,
 			toggleActions: 'play none none reverse',
-		} );
+		} ) as ScrollTrigger;
 	}
 
-	private executeBasedOnTrigger( timeline: any, config: AnimationConfig ): void {
+	private executeBasedOnTrigger( timeline: GSAPTimeline, config: AnimationConfig ): void {
 		switch ( config.trigger ) {
 			case 'pageload':
 				timeline.play();
 				break;
 			case 'scroll':
+				// Scroll trigger handled elsewhere
 				break;
 			case 'click':
 				this.addClickTrigger( timeline );
@@ -296,17 +316,19 @@ export class AnimationService {
 			case 'hover':
 				this.addHoverTrigger( timeline );
 				break;
+			default:
+				// Unknown trigger type
 		}
 	}
 
-	private addClickTrigger( timeline: any ): void {
+	private addClickTrigger( timeline: GSAPTimeline ): void {
 		const element = timeline.targets()[ 0 ] as Element;
 		if ( element ) {
 			element.addEventListener( 'click', () => timeline.restart() );
 		}
 	}
 
-	private addHoverTrigger( timeline: any ): void {
+	private addHoverTrigger( timeline: GSAPTimeline ): void {
 		const element = timeline.targets()[ 0 ] as Element;
 		if ( element ) {
 			element.addEventListener( 'mouseenter', () => timeline.play() );

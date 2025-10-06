@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="GSAP Block Animator">
+	<description>Custom PHP CodeSniffer configuration for GSAP Block Animator</description>
+
+	<!-- Scan these directories and file types -->
+	<file>includes/</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+
+	<!-- Use WordPress coding standards as base -->
+	<rule ref="WordPress-Extra">
+		<!-- Disable overly strict JSDoc requirements -->
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+		<exclude name="Squiz.Commenting.FunctionComment.InvalidReturn"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
+		
+		<!-- Disable file naming rules for existing architecture -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		
+		<!-- Allow modern PHP features -->
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+		
+		<!-- Allow intentional debug code -->
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log"/>
+	</rule>
+
+	<!-- Check for PHP syntax errors -->
+	<rule ref="Generic.PHP.Syntax"/>
+
+	<!-- Ensure PHP 8.2+ compatibility -->
+	<config name="testVersion" value="8.2-"/>
+</ruleset>

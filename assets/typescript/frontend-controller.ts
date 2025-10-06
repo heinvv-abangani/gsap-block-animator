@@ -167,6 +167,7 @@ class FrontendController {
 const frontendController = new FrontendController();
 
 if ( typeof window !== 'undefined' ) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	( window as any ).GSAPBlockAnimator = {
 		controller: frontendController,
 		AnimationService,

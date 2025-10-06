@@ -1,6 +1,9 @@
+import * as React from 'react';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls } from '@wordpress/block-editor';
+// Import { InspectorControls } from '@wordpress/block-editor';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const { InspectorControls } = ( window.wp as any ).blockEditor;
 import { createElement } from '@wordpress/element';
 
 import { AnimationPanel } from './components/animation-panel/animation-panel';
@@ -8,7 +11,8 @@ import type { BlockEditProps } from './types/block';
 
 // Global types handled in types/global.d.ts
 
-const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: any ) => {
+
+const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.ComponentType<BlockEditProps> ) => {
 	return ( props: BlockEditProps ) => {
 		const { name: blockName } = props;
 
@@ -16,14 +20,16 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: any ) => {
 			return createElement( BlockEdit, props );
 		}
 
+
 		return createElement(
 			'div',
 			{},
 			createElement( BlockEdit, props ),
 			createElement(
-				InspectorControls,
-				null,
-				createElement( AnimationPanel, props ),
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			InspectorControls as any,
+			null,
+			createElement( AnimationPanel, props ),
 			),
 		);
 	};
@@ -43,16 +49,27 @@ const shouldSkipBlock = ( blockName: string ): boolean => {
 };
 
 const registerAnimationControls = (): void => {
-	addFilter(
-		'editor.BlockEdit',
-		'gsap-block-animator/add-animation-controls',
-		withAnimationPanel,
-	);
+	try {
+		addFilter(
+			'editor.BlockEdit',
+			'gsap-block-animator/add-animation-controls',
+			withAnimationPanel,
+		);
+	} catch (error) {
+		// Silently handle registration errors
+	}
 };
 
-// Ensure we register the controls when WordPress is ready
-if ( typeof window !== 'undefined' && window.wp && ( window.wp as any ).hooks ) {
+
+if ( typeof window !== 'undefined' && window.wp && window.wp.hooks ) {
 	registerAnimationControls();
+} else {
+	// Try again after a delay
+	setTimeout(() => {
+		if ( typeof window !== 'undefined' && window.wp && window.wp.hooks ) {
+			registerAnimationControls();
+		}
+	}, 1000);
 }
 
 export { registerAnimationControls, withAnimationPanel };

@@ -47,20 +47,20 @@ class Container implements ContainerInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function bind( string $abstract, callable|string|object $concrete ): void {
-		$this->bindings[ $abstract ]           = $concrete;
-		$this->singleton_bindings[ $abstract ] = false;
+	public function bind( string $type_name, callable|string|object $concrete ): void {
+		$this->bindings[ $type_name ]           = $concrete;
+		$this->singleton_bindings[ $type_name ] = false;
 
-		// Remove existing singleton instance if rebinding
-		unset( $this->singletons[ $abstract ] );
+		// Remove existing singleton instance if rebinding.
+		unset( $this->singletons[ $type_name ] );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function singleton( string $abstract, callable|string|object $concrete ): void {
-		$this->bindings[ $abstract ]           = $concrete;
-		$this->singleton_bindings[ $abstract ] = true;
+	public function singleton( string $type_name, callable|string|object $concrete ): void {
+		$this->bindings[ $type_name ]           = $concrete;
+		$this->singleton_bindings[ $type_name ] = true;
 	}
 
 	/**
@@ -79,31 +79,33 @@ class Container implements ContainerInterface {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws ContainerException When circular dependency detected or resolution fails.
 	 */
-	public function resolve( string $abstract ): object {
-		// Check for circular dependency
-		if ( isset( $this->resolving[ $abstract ] ) ) {
-			throw ContainerException::circular_dependency( $abstract );
+	public function resolve( string $type_name ): object {
+		// Check for circular dependency.
+		if ( isset( $this->resolving[ $type_name ] ) ) {
+			throw ContainerException::circular_dependency( $type_name );
 		}
 
-		// Return existing singleton instance
-		if ( isset( $this->singletons[ $abstract ] ) ) {
-			return $this->singletons[ $abstract ];
+		// Return existing singleton instance.
+		if ( isset( $this->singletons[ $type_name ] ) ) {
+			return $this->singletons[ $type_name ];
 		}
 
-		$this->resolving[ $abstract ] = true;
+		$this->resolving[ $type_name ] = true;
 
 		try {
-			$instance = $this->make( $abstract );
+			$instance = $this->make( $type_name );
 
-			// Store singleton instance
-			if ( $this->is_singleton( $abstract ) ) {
-				$this->singletons[ $abstract ] = $instance;
+			// Store singleton instance.
+			if ( $this->is_singleton( $type_name ) ) {
+				$this->singletons[ $type_name ] = $instance;
 			}
 
 			return $instance;
 		} finally {
-			unset( $this->resolving[ $abstract ] );
+			unset( $this->resolving[ $type_name ] );
 		}
 	}
 
