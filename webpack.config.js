@@ -1,6 +1,9 @@
 const path = require('path');
 
-module.exports = {
+module.exports = (env, argv) => {
+  const isProduction = argv.mode === 'production';
+  
+  return {
   entry: {
     editor: './assets/typescript/editor.ts',
     frontend: './assets/typescript/frontend.ts'
@@ -52,6 +55,24 @@ module.exports = {
       }
     ]
   },
+  mode: isProduction ? 'production' : 'development',
+  devtool: isProduction ? 'source-map' : 'eval-source-map',
+  watch: !isProduction,
+  watchOptions: {
+    ignored: /node_modules/,
+    poll: 1000,
+    aggregateTimeout: 300
+  },
+  stats: {
+    assets: true,
+    children: false,
+    chunks: false,
+    modules: false,
+    colors: true,
+    timings: true,
+    warnings: true,
+    errors: true
+  },
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
@@ -77,4 +98,5 @@ module.exports = {
       }
     }
   }
+  };
 };

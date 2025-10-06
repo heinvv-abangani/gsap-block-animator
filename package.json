@@ -6,6 +6,9 @@
   "scripts": {
     "build": "webpack --mode=production",
     "dev": "webpack --mode=development --watch",
+    "dev:verbose": "webpack --mode=development --watch --progress",
+    "dev:live": "npm run dev:verbose & npm run browser:sync",
+    "browser:sync": "echo 'Open your WordPress admin at: http://localhost/wp-admin/post-new.php?post_type=page' && echo 'The TypeScript files will auto-compile when you make changes!'",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
