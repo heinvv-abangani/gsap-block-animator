@@ -35,11 +35,7 @@ class FrontendInitializer {
 	}
 
 	private checkGSAPAvailability(): boolean {
-		if (typeof window.gsap === 'undefined') {
-			console.warn('GSAP Block Animator: GSAP library not loaded');
-			return false;
-		}
-		return true;
+		return typeof window.gsap !== 'undefined';
 	}
 
 	private registerScrollTriggerIfAvailable(): void {
@@ -61,10 +57,7 @@ class FrontendInitializer {
 	}
 
 	private handleReducedMotionPreference(): void {
-		const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-		if (prefersReducedMotion && this.settings.debugMode) {
-			console.log('GSAP Block Animator: Reduced motion preference detected');
-		}
+		// Handle reduced motion preference - implemented in animation controller
 	}
 
 	private bindVisibilityChangeEvents(): void {

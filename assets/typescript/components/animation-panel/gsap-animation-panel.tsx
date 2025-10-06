@@ -461,21 +461,17 @@ function addGSAPAttributes(settings: any, name: string) {
 }
 
 // Register the filters
-console.log('GSAP Block Animator: Registering addFilter for blocks.registerBlockType');
 addFilter(
     'blocks.registerBlockType',
     'gsap-block-animator/add-attributes',
     addGSAPAttributes
 );
 
-console.log('GSAP Block Animator: Registering addFilter for editor.BlockEdit');
 addFilter(
     'editor.BlockEdit',
     'gsap-block-animator/add-animation-controls',
     withGSAPPanel
 );
-
-console.log('GSAP Block Animator: All filters registered successfully');
 
 export { GSAPAnimationPanel, withGSAPPanel, addGSAPAttributes };
 export type { GSAPAnimationPanelProps };

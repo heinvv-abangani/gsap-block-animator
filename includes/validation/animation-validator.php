@@ -8,12 +8,23 @@ use GSAPBlockAnimator\Exceptions\Validation_Exception;
 
 class Animation_Validator {
 
-	private const SIGNED_CSS_UNIT_PATTERN = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
+	private const SIGNED_CSS_UNIT_PATTERN   = '/^-?\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
 	private const POSITIVE_CSS_UNIT_PATTERN = '/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/';
-	private const HEX_COLOR_PATTERN = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
-	private const RGB_COLOR_PATTERN = '/^rgba?\([^)]+\)$/';
+	private const HEX_COLOR_PATTERN         = '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
+	private const RGB_COLOR_PATTERN         = '/^rgba?\([^)]+\)$/';
 
+	/**
+	 * Validation rules array
+	 *
+	 * @var array
+	 */
 	private array $rules;
+
+	/**
+	 * Validation errors array
+	 *
+	 * @var array
+	 */
 	private array $errors;
 
 	public function __construct() {
@@ -345,7 +356,7 @@ class Animation_Validator {
 	}
 
 	private function add_error( string $field, string $message ): void {
-		$this->errors[] = "{$field}: {$message}";
+		$this->errors[] = sprintf( '%s: %s', $field, $message );
 	}
 
 	private function get_validation_rules(): array {

@@ -63,7 +63,6 @@ class FrontendController {
 		try {
 			return JSON.parse(configData) as AnimationConfig;
 		} catch {
-			console.warn('Invalid animation configuration found on element:', element);
 			return null;
 		}
 	}
@@ -79,7 +78,7 @@ class FrontendController {
 		try {
 			this.animationService.createProductionAnimation(element, config);
 		} catch (error) {
-			console.error('Failed to create animation for element:', element, error);
+			// Silent error handling for production
 		}
 	}
 

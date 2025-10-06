@@ -10,7 +10,7 @@ class Animation_Exception extends Exception {
 
 	public static function invalid_config( string $message = '' ): self {
 		return new self(
-			$message ?: 'Invalid animation configuration provided',
+			$message ? $message : 'Invalid animation configuration provided',
 			400
 		);
 	}

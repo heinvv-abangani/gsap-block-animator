@@ -94,7 +94,6 @@ export class FrontendAnimationController {
             const config = JSON.parse(animationData) as AnimationConfig;
             return config;
         } catch (error) {
-            console.warn('GSAP Block Animator: Invalid animation configuration found on element:', element);
             return null;
         }
     }
@@ -119,13 +118,12 @@ export class FrontendAnimationController {
             const properties = this.prepareAnimationProperties(config);
             
             if (!this.hasAnimationProperties(properties)) {
-                console.warn('GSAP Block Animator: No animation properties found! Animation will not be visible.');
                 return;
             }
 
             this.executeAnimationByTrigger(element, config, properties);
         } catch (error) {
-            console.error('GSAP Block Animator: Failed to create animation for element:', element, error);
+            // Silent error handling for production
         }
     }
 
@@ -133,11 +131,7 @@ export class FrontendAnimationController {
      * Check if GSAP is available
      */
     private checkGSAPAvailability(): boolean {
-        if (typeof window.gsap === 'undefined') {
-            console.warn('GSAP Block Animator: GSAP library not loaded');
-            return false;
-        }
-        return true;
+        return typeof window.gsap !== 'undefined';
     }
 
     /**
@@ -213,7 +207,7 @@ export class FrontendAnimationController {
                 this.createHoverAnimation(element, config, properties);
                 break;
             default:
-                console.warn(`GSAP Block Animator: Unknown trigger type: ${config.trigger}`);
+                // Unknown trigger type - silently ignored
         }
     }
 
@@ -238,7 +232,7 @@ export class FrontendAnimationController {
                 gsap.set(element, properties);
                 break;
             default:
-                console.warn(`GSAP Block Animator: Unknown animation type: ${config.type}`);
+                // Unknown animation type - silently ignored
         }
     }
 
@@ -247,7 +241,7 @@ export class FrontendAnimationController {
      */
     private createScrollAnimation(element: Element, config: AnimationConfig, properties: AnimationProperties): void {
         if (typeof window.ScrollTrigger === 'undefined') {
-            console.warn('GSAP Block Animator: ScrollTrigger not available, falling back to page load');
+            // ScrollTrigger not available, fallback to page load
             this.createPageLoadAnimation(element, config, properties);
             return;
         }
@@ -273,7 +267,7 @@ export class FrontendAnimationController {
                 gsap.from(element, scrollProperties);
                 break;
             default:
-                console.warn(`GSAP Block Animator: Animation type ${config.type} not supported for scroll trigger`);
+                // Animation type not supported for scroll trigger - silently ignored
         }
     }
 
@@ -294,7 +288,7 @@ export class FrontendAnimationController {
                     gsap.from(element, properties);
                     break;
                 default:
-                    console.warn(`GSAP Block Animator: Animation type ${config.type} not supported for click trigger`);
+                    // Animation type not supported for click trigger - silently ignored
             }
         });
     }
@@ -398,7 +392,7 @@ export class FrontendAnimationController {
         const blockId = this.extractBlockId(element);
         if (blockId) {
             // Handle scroll animation trigger
-            console.log('GSAP Block Animator: Scroll animation triggered for element:', element);
+            // Animation implementation here
         }
     }
 

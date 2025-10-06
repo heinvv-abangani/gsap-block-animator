@@ -44,19 +44,19 @@ class Service_Exception extends Exception {
 		);
 	}
 
-	public static function resource_not_found( string $resource, string $identifier = '' ): self {
+	public static function resource_not_found( string $resource_name, string $identifier = '' ): self {
 		return new self(
 			$identifier
-				? sprintf( 'Resource "%s" not found with identifier: %s', $resource, $identifier )
-				: sprintf( 'Resource not found: %s', $resource ),
+				? sprintf( 'Resource "%s" not found with identifier: %s', $resource_name, $identifier )
+				: sprintf( 'Resource not found: %s', $resource_name ),
 			404
 		);
 	}
 
-	public static function permission_denied( string $operation, string $resource = '' ): self {
+	public static function permission_denied( string $operation, string $resource_name = '' ): self {
 		return new self(
-			$resource
-				? sprintf( 'Permission denied for operation "%s" on resource: %s', $operation, $resource )
+			$resource_name
+				? sprintf( 'Permission denied for operation "%s" on resource: %s', $operation, $resource_name )
 				: sprintf( 'Permission denied for operation: %s', $operation ),
 			403
 		);
