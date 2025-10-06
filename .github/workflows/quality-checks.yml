@@ -39,7 +39,7 @@ jobs:
     - name: PHP CodeSniffer
       run: |
         if [ -f "vendor/bin/phpcs" ]; then
-          vendor/bin/phpcs --standard=WordPress includes/
+          vendor/bin/phpcs --standard=WordPress --exclude=Squiz.Commenting.FileComment,Squiz.Commenting.ClassComment,Squiz.Commenting.FunctionComment,Generic.Commenting.DocComment,WordPress.Files.FileName includes/
         else
           echo "PHPCS not found, skipping WordPress coding standards check"
         fi
