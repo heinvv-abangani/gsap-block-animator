@@ -1,0 +1,130 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+
+jobs:
+  build:
+    name: Build Plugin
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Composer dependencies (production)
+      run: composer install --prefer-dist --no-dev --optimize-autoloader
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Build TypeScript assets
+      run: npm run build
+
+    - name: Remove development files
+      run: |
+        rm -rf node_modules/
+        rm -rf assets/typescript/
+        rm -rf .github/
+        rm -rf tests/
+        rm -rf rules/
+        rm -rf backup/
+        rm -rf docs/
+        rm -f package*.json
+        rm -f tsconfig.json
+        rm -f webpack.config.js
+        rm -f jest.config.js
+        rm -f playwright.config.ts
+        rm -f phpunit.xml
+        rm -f .gitignore
+        rm -f README*.md
+
+    - name: Create plugin zip
+      run: |
+        cd ..
+        zip -r gsap-block-animator-${{ github.sha }}.zip gsap-block-animator/ \
+          -x "gsap-block-animator/.git/*" \
+          -x "gsap-block-animator/.github/*" \
+          -x "gsap-block-animator/node_modules/*" \
+          -x "gsap-block-animator/tests/*" \
+          -x "gsap-block-animator/.DS_Store"
+        mv gsap-block-animator-${{ github.sha }}.zip gsap-block-animator/
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gsap-block-animator-build-${{ github.sha }}
+        path: gsap-block-animator-${{ github.sha }}.zip
+        retention-days: 30
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: gsap-block-animator-build-${{ github.sha }}
+
+    - name: Get tag version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: GSAP Block Animator ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## GSAP Block Animator ${{ steps.get_version.outputs.VERSION }}
+          
+          ### Features
+          - Complete GSAP animation controls for WordPress blocks
+          - Timeline management system
+          - TypeScript development with compiled JavaScript distribution
+          - WordPress Gutenberg integration
+          
+          ### Installation
+          1. Download the `gsap-block-animator.zip` file
+          2. Upload and activate in WordPress admin
+          3. Add animations to any block in the editor
+          
+          ### Requirements
+          - WordPress 6.0+
+          - PHP 8.2+
+          - Modern browser (Chrome 90+, Firefox 88+, Safari 14+)
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./gsap-block-animator-${{ github.sha }}.zip
+        asset_name: gsap-block-animator.zip
+        asset_content_type: application/zip

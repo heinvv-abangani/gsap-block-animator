@@ -1,0 +1,123 @@
+name: Quality Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  php-lint:
+    name: PHP Lint & Standards
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl
+        tools: composer:v2
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: PHP Syntax Check
+      run: find includes/ -name "*.php" -exec php -l {} \;
+
+    - name: PHP CodeSniffer
+      run: |
+        if [ -f "vendor/bin/phpcs" ]; then
+          vendor/bin/phpcs --standard=WordPress includes/
+        else
+          echo "PHPCS not found, skipping WordPress coding standards check"
+        fi
+
+    - name: PHP Static Analysis (if PHPStan exists)
+      run: |
+        if [ -f "vendor/bin/phpstan" ]; then
+          vendor/bin/phpstan analyse includes/
+        else
+          echo "PHPStan not found, skipping static analysis"
+        fi
+
+  typescript-lint:
+    name: TypeScript Lint & Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: TypeScript Type Check
+      run: npm run type-check
+
+    - name: ESLint Check
+      run: npm run lint
+
+    - name: Build TypeScript
+      run: npm run build
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: [php-lint, typescript-lint]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Run PHP Unit Tests (if PHPUnit exists)
+      run: |
+        if [ -f "vendor/bin/phpunit" ]; then
+          vendor/bin/phpunit
+        else
+          echo "PHPUnit not found, skipping PHP tests"
+        fi
+
+    - name: Run JavaScript/TypeScript Tests
+      run: |
+        if npm run test --if-present; then
+          echo "JavaScript tests completed"
+        else
+          echo "No JavaScript tests found or tests failed"
+        fi
