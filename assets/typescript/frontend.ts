@@ -23,21 +23,16 @@ class FrontendInitializer {
 	}
 
 	private initialize(): void {
-		console.log('🚀 GSAP Block Animator: Frontend initializing...');
-		
-		if ( ! this.checkGSAPAvailability() ) {
-			console.warn('⚠️ GSAP not available in frontend');
-			return;
+			if ( ! this.checkGSAPAvailability() ) {
+				return;
 		}
 
-		console.log('✅ GSAP is available, proceeding with initialization');
-		this.registerScrollTriggerIfAvailable();
+			this.registerScrollTriggerIfAvailable();
 		this.exposeControllerGlobally();
 		this.handleReducedMotionPreference();
 		this.bindVisibilityChangeEvents();
 		this.bindResizeEventsWithThrottling();
-		console.log('✅ Frontend initialization complete');
-	}
+		}
 
 	private checkGSAPAvailability(): boolean {
 		return typeof window.gsap !== 'undefined';

@@ -18,7 +18,6 @@ export const AnimationPanel: React.FC<AnimationPanelProps> = ( {
 	clientId,
 	name: blockName,
 } ) => {
-	
 	const [ isPreviewMode, setIsPreviewMode ] = useState( false );
 
 	const getDefaultAnimationConfig = (): AnimationConfig => ( {
@@ -55,7 +54,6 @@ export const AnimationPanel: React.FC<AnimationPanelProps> = ( {
 	const togglePreviewMode = useCallback( () => {
 		setIsPreviewMode( ! isPreviewMode );
 	}, [ isPreviewMode ] );
-	
 	return (
 		<PanelBody
 			title={ __( 'GSAP Animation', 'gsap-block-animator' ) }

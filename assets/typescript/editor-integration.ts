@@ -11,7 +11,6 @@ import type { BlockEditProps } from './types/block';
 
 // Global types handled in types/global.d.ts
 
-
 const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.ComponentType<BlockEditProps> ) => {
 	return ( props: BlockEditProps ) => {
 		const { name: blockName } = props;
@@ -20,16 +19,15 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.Compon
 			return createElement( BlockEdit, props );
 		}
 
-
 		return createElement(
 			'div',
 			{},
 			createElement( BlockEdit, props ),
 			createElement(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			InspectorControls as any,
-			null,
-			createElement( AnimationPanel, props ),
+				InspectorControls as any,
+				null,
+				createElement( AnimationPanel, props )
 			),
 		);
 	};
@@ -60,16 +58,15 @@ const registerAnimationControls = (): void => {
 	}
 };
 
-
 if ( typeof window !== 'undefined' && window.wp && window.wp.hooks ) {
 	registerAnimationControls();
 } else {
 	// Try again after a delay
-	setTimeout(() => {
+	setTimeout( () => {
 		if ( typeof window !== 'undefined' && window.wp && window.wp.hooks ) {
 			registerAnimationControls();
 		}
-	}, 1000);
+	}, 1000 );
 }
 
 export { registerAnimationControls, withAnimationPanel };

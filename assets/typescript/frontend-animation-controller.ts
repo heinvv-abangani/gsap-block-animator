@@ -59,16 +59,11 @@ export class FrontendAnimationController {
 	 * Initialize all animations
 	 */
 	private initializeAnimations(): void {
-		console.log('🎬 Frontend Controller: Initializing animations...');
 		const animatedElements = this.findAnimatedElements();
-		console.log(`📊 Found ${animatedElements.length} animated elements:`, animatedElements);
 
 		animatedElements.forEach( ( element: Element ) => {
-			console.log('🎯 Processing animated element:', element);
 			this.processAnimatedElement( element );
 		} );
-		
-		console.log('✅ Animation initialization complete');
 	}
 
 	/**
@@ -84,13 +79,9 @@ export class FrontendAnimationController {
 	 */
 	private processAnimatedElement( element: Element ): void {
 		const animationConfig = this.extractAnimationConfig( element );
-		console.log('🔍 Animation config extracted:', animationConfig);
 
 		if ( this.isValidConfig( animationConfig ) ) {
-			console.log('✅ Valid config, creating animation');
 			this.createAnimation( element, animationConfig );
-		} else {
-			console.log('❌ Invalid animation config');
 		}
 	}
 
@@ -131,25 +122,19 @@ export class FrontendAnimationController {
 	 */
 	private createAnimation( element: Element, config: AnimationConfig ): void {
 		try {
-			console.log('🎭 Creating animation for element:', element, 'with config:', config);
-			
 			if ( ! this.checkGSAPAvailability() ) {
-				console.warn('⚠️ GSAP not available during animation creation');
 				return;
 			}
 
 			const properties = this.prepareAnimationProperties( config );
-			console.log('🔧 Prepared animation properties:', properties);
 
 			if ( ! this.hasAnimationProperties( properties ) ) {
-				console.warn('⚠️ No valid animation properties found');
 				return;
 			}
 
-			console.log('🚀 Executing animation with trigger:', config.trigger);
 			this.executeAnimationByTrigger( element, config, properties );
 		} catch ( error ) {
-			console.error('❌ Error creating animation:', error);
+			// Silently handle animation creation errors
 		}
 	}
 
@@ -250,28 +235,22 @@ export class FrontendAnimationController {
 	 */
 	private createPageLoadAnimation( element: Element, config: AnimationConfig, properties: AnimationProperties ): void {
 		const gsap = window.gsap;
-		console.log(`🎬 Creating ${config.type} page load animation for:`, element);
 
 		switch ( config.type ) {
 			case 'to':
-				console.log('🎯 Executing gsap.to with properties:', properties);
 				gsap.to( element, properties );
 				break;
 			case 'from':
-				console.log('🎯 Executing gsap.from with properties:', properties);
 				gsap.from( element, properties );
 				break;
 			case 'fromTo':
 				const fromProps = this.getFromProperties();
-				console.log('🎯 Executing gsap.fromTo with from:', fromProps, 'to:', properties);
 				gsap.fromTo( element, fromProps, properties );
 				break;
 			case 'set':
-				console.log('🎯 Executing gsap.set with properties:', properties);
 				gsap.set( element, properties );
 				break;
 			default:
-				console.warn('⚠️ Unknown animation type:', config.type);
 		}
 	}
 
