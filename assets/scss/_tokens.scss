@@ -1,0 +1,69 @@
+:root {
+	--gsap-color-primary: #007cba;
+	--gsap-color-primary-hover: #005a87;
+	--gsap-color-secondary: #2271b1;
+	--gsap-color-secondary-hover: #135e96;
+	
+	--gsap-color-success: #00a32a;
+	--gsap-color-warning: #dba617;
+	--gsap-color-error: #d63638;
+	--gsap-color-info: #72aee6;
+	
+	--gsap-color-text-primary: #1d2327;
+	--gsap-color-text-secondary: #646970;
+	--gsap-color-text-tertiary: #8c8f94;
+	--gsap-color-text-inverse: #ffffff;
+	
+	--gsap-color-background-primary: #ffffff;
+	--gsap-color-background-secondary: #f6f7f7;
+	--gsap-color-background-tertiary: #eeeeee;
+	--gsap-color-background-dark: #1d2327;
+	
+	--gsap-color-border-primary: #dcdcde;
+	--gsap-color-border-secondary: #c3c4c7;
+	--gsap-color-border-focus: #007cba;
+	--gsap-color-border-error: #d63638;
+	
+	--gsap-spacing-xs: 4px;
+	--gsap-spacing-sm: 8px;
+	--gsap-spacing-md: 12px;
+	--gsap-spacing-lg: 16px;
+	--gsap-spacing-xl: 20px;
+	--gsap-spacing-xxl: 24px;
+	--gsap-spacing-xxxl: 32px;
+	
+	--gsap-border-radius-sm: 2px;
+	--gsap-border-radius-md: 4px;
+	--gsap-border-radius-lg: 6px;
+	--gsap-border-radius-xl: 8px;
+	
+	--gsap-font-size-xs: 11px;
+	--gsap-font-size-sm: 12px;
+	--gsap-font-size-md: 13px;
+	--gsap-font-size-lg: 14px;
+	--gsap-font-size-xl: 16px;
+	--gsap-font-size-xxl: 18px;
+	
+	--gsap-font-weight-normal: 400;
+	--gsap-font-weight-medium: 500;
+	--gsap-font-weight-semibold: 600;
+	--gsap-font-weight-bold: 700;
+	
+	--gsap-line-height-sm: 1.2;
+	--gsap-line-height-md: 1.4;
+	--gsap-line-height-lg: 1.6;
+	
+	--gsap-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--gsap-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+	--gsap-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+	--gsap-shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+	
+	--gsap-z-index-dropdown: 1000;
+	--gsap-z-index-modal: 1050;
+	--gsap-z-index-popover: 1060;
+	--gsap-z-index-tooltip: 1070;
+	
+	--gsap-transition-fast: 150ms ease-out;
+	--gsap-transition-normal: 250ms ease-out;
+	--gsap-transition-slow: 350ms ease-out;
+}

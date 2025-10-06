@@ -1,0 +1,120 @@
+@import 'tokens';
+@import 'mixins';
+
+@import 'components/animation-panel';
+@import 'components/animation-preview';
+@import 'components/notice';
+
+.gsap-block-animator {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	
+	* {
+		box-sizing: border-box;
+	}
+}
+
+.components-base-control {
+	&.gsap-section-divider {
+		margin-bottom: var(--gsap-spacing-lg);
+		
+		.components-base-control__label {
+			@include gsap-section-header;
+		}
+	}
+}
+
+.components-toggle-control {
+	.components-form-toggle {
+		&.is-checked {
+			.components-form-toggle__track {
+				background-color: var(--gsap-color-primary);
+			}
+		}
+	}
+}
+
+.components-range-control {
+	.components-range-control__slider {
+		&::-webkit-slider-thumb {
+			background: var(--gsap-color-primary);
+			border-color: var(--gsap-color-primary);
+		}
+		
+		&::-moz-range-thumb {
+			background: var(--gsap-color-primary);
+			border-color: var(--gsap-color-primary);
+		}
+	}
+}
+
+.components-select-control {
+	select {
+		&:focus {
+			border-color: var(--gsap-color-border-focus);
+			box-shadow: 0 0 0 1px var(--gsap-color-border-focus);
+		}
+	}
+}
+
+.components-text-control {
+	input[type="text"] {
+		&:focus {
+			border-color: var(--gsap-color-border-focus);
+			box-shadow: 0 0 0 1px var(--gsap-color-border-focus);
+		}
+	}
+}
+
+.wp-admin {
+	.gsap-block-animator {
+		.components-button {
+			&.is-primary {
+				@include gsap-button-primary;
+			}
+			
+			&.is-secondary {
+				@include gsap-button-secondary;
+			}
+			
+			&.is-tertiary {
+				@include gsap-button-base;
+				background: transparent;
+				border-color: transparent;
+				color: var(--gsap-color-text-secondary);
+				
+				&:hover:not(:disabled) {
+					background: var(--gsap-color-background-secondary);
+					border-color: var(--gsap-color-border-primary);
+					color: var(--gsap-color-text-primary);
+				}
+			}
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.gsap-block-animator {
+		* {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}
+
+@media (max-width: 782px) {
+	.gsap-properties-grid {
+		grid-template-columns: 1fr;
+		gap: var(--gsap-spacing-sm);
+	}
+	
+	.gsap-preview-controls {
+		flex-direction: column;
+		
+		.gsap-preview-button,
+		.gsap-stop-button,
+		.gsap-reset-element-button {
+			width: 100%;
+		}
+	}
+}

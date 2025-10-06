@@ -1,0 +1,185 @@
+@mixin gsap-button-base {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--gsap-spacing-sm) var(--gsap-spacing-md);
+	border: 1px solid var(--gsap-color-border-primary);
+	border-radius: var(--gsap-border-radius-md);
+	background: var(--gsap-color-background-primary);
+	color: var(--gsap-color-text-primary);
+	font-size: var(--gsap-font-size-md);
+	font-weight: var(--gsap-font-weight-medium);
+	line-height: var(--gsap-line-height-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: all var(--gsap-transition-fast);
+	
+	&:hover:not(:disabled) {
+		border-color: var(--gsap-color-border-secondary);
+		background: var(--gsap-color-background-secondary);
+	}
+	
+	&:focus:not(:disabled) {
+		outline: 2px solid var(--gsap-color-border-focus);
+		outline-offset: 1px;
+	}
+	
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+@mixin gsap-button-primary {
+	@include gsap-button-base;
+	border-color: var(--gsap-color-primary);
+	background: var(--gsap-color-primary);
+	color: var(--gsap-color-text-inverse);
+	
+	&:hover:not(:disabled) {
+		border-color: var(--gsap-color-primary-hover);
+		background: var(--gsap-color-primary-hover);
+	}
+}
+
+@mixin gsap-button-secondary {
+	@include gsap-button-base;
+	border-color: var(--gsap-color-secondary);
+	background: transparent;
+	color: var(--gsap-color-secondary);
+	
+	&:hover:not(:disabled) {
+		border-color: var(--gsap-color-secondary-hover);
+		background: var(--gsap-color-secondary-hover);
+		color: var(--gsap-color-text-inverse);
+	}
+}
+
+@mixin gsap-input-base {
+	display: block;
+	width: 100%;
+	padding: var(--gsap-spacing-sm) var(--gsap-spacing-md);
+	border: 1px solid var(--gsap-color-border-primary);
+	border-radius: var(--gsap-border-radius-md);
+	background: var(--gsap-color-background-primary);
+	color: var(--gsap-color-text-primary);
+	font-size: var(--gsap-font-size-md);
+	line-height: var(--gsap-line-height-md);
+	transition: border-color var(--gsap-transition-fast);
+	
+	&:focus {
+		outline: none;
+		border-color: var(--gsap-color-border-focus);
+		box-shadow: 0 0 0 1px var(--gsap-color-border-focus);
+	}
+	
+	&:disabled {
+		background: var(--gsap-color-background-tertiary);
+		color: var(--gsap-color-text-tertiary);
+		cursor: not-allowed;
+	}
+	
+	&.error {
+		border-color: var(--gsap-color-border-error);
+	}
+}
+
+@mixin gsap-card {
+	background: var(--gsap-color-background-primary);
+	border: 1px solid var(--gsap-color-border-primary);
+	border-radius: var(--gsap-border-radius-lg);
+	box-shadow: var(--gsap-shadow-sm);
+}
+
+@mixin gsap-panel-section {
+	margin-bottom: var(--gsap-spacing-lg);
+	
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+@mixin gsap-section-header {
+	margin-bottom: var(--gsap-spacing-md);
+	padding-bottom: var(--gsap-spacing-sm);
+	border-bottom: 1px solid var(--gsap-color-border-primary);
+	font-size: var(--gsap-font-size-lg);
+	font-weight: var(--gsap-font-weight-semibold);
+	color: var(--gsap-color-text-primary);
+}
+
+@mixin gsap-help-text {
+	margin-top: var(--gsap-spacing-xs);
+	font-size: var(--gsap-font-size-sm);
+	color: var(--gsap-color-text-secondary);
+	line-height: var(--gsap-line-height-md);
+}
+
+@mixin gsap-grid($columns: 2, $gap: var(--gsap-spacing-md)) {
+	display: grid;
+	grid-template-columns: repeat($columns, 1fr);
+	gap: $gap;
+}
+
+@mixin gsap-flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@mixin gsap-flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@mixin gsap-visually-hidden {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+@mixin gsap-loading-spinner($size: 20px) {
+	width: $size;
+	height: $size;
+	border: 2px solid var(--gsap-color-border-primary);
+	border-top: 2px solid var(--gsap-color-primary);
+	border-radius: 50%;
+	animation: gsap-spin 1s linear infinite;
+}
+
+@keyframes gsap-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+@mixin gsap-notice($type: 'info') {
+	padding: var(--gsap-spacing-md);
+	border-radius: var(--gsap-border-radius-md);
+	border-left: 4px solid;
+	margin-bottom: var(--gsap-spacing-md);
+	
+	@if $type == 'success' {
+		background: rgba(0, 163, 42, 0.05);
+		border-left-color: var(--gsap-color-success);
+		color: #155724;
+	} @else if $type == 'warning' {
+		background: rgba(219, 166, 23, 0.05);
+		border-left-color: var(--gsap-color-warning);
+		color: #856404;
+	} @else if $type == 'error' {
+		background: rgba(214, 54, 56, 0.05);
+		border-left-color: var(--gsap-color-error);
+		color: #721c24;
+	} @else {
+		background: rgba(114, 174, 230, 0.05);
+		border-left-color: var(--gsap-color-info);
+		color: #004085;
+	}
+}

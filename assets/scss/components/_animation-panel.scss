@@ -1,0 +1,51 @@
+.gsap {
+	&-animation-panel {
+		.components-panel__body-title {
+			font-weight: var(--gsap-font-weight-semibold);
+		}
+	}
+
+	&-section-divider {
+		@include gsap-panel-section;
+		
+		.components-base-control__label {
+			@include gsap-section-header;
+		}
+	}
+
+	&-properties-grid {
+		@include gsap-grid(2, var(--gsap-spacing-md));
+		
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&-action-buttons {
+		@include gsap-panel-section;
+	}
+
+	&-reset-button {
+		@include gsap-button-secondary;
+		width: 100%;
+	}
+
+	&-config-summary {
+		.gsap-summary-box {
+			@include gsap-card;
+			padding: var(--gsap-spacing-md);
+			background: rgba(0, 163, 42, 0.05);
+			border-left: 4px solid var(--gsap-color-success);
+			font-size: var(--gsap-font-size-sm);
+			color: var(--gsap-color-text-secondary);
+			line-height: var(--gsap-line-height-md);
+			
+			strong {
+				display: block;
+				margin-bottom: var(--gsap-spacing-xs);
+				color: var(--gsap-color-success);
+				font-weight: var(--gsap-font-weight-semibold);
+			}
+		}
+	}
+}

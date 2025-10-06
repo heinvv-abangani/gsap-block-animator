@@ -1,0 +1,70 @@
+{
+  "name": "gsap-block-animator",
+  "version": "2.0.0",
+  "description": "GSAP Block Animator - Advanced WordPress Gutenberg block animations",
+  "main": "assets/dist/js/frontend.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "lint": "eslint assets/typescript --ext .ts,.tsx",
+    "lint:fix": "eslint assets/typescript --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "quality": "npm run lint && npm run type-check && npm run test"
+  },
+  "keywords": [
+    "wordpress",
+    "gutenberg",
+    "gsap",
+    "animation",
+    "typescript"
+  ],
+  "author": "Tevin Hendricks",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@types/jest": "^29.5.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/wordpress__block-editor": "^11.5.17",
+    "@types/wordpress__components": "^23.0.12",
+    "@types/wordpress__compose": "^6.0.1",
+    "@types/wordpress__element": "^2.4.1",
+    "@types/wordpress__hooks": "^2.4.1",
+    "@types/wordpress__i18n": "^3.4.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "css-loader": "^6.8.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.0.0",
+    "sass": "^1.69.0",
+    "sass-loader": "^13.3.0",
+    "style-loader": "^3.3.0",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "dependencies": {
+    "gsap": "^3.12.5"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

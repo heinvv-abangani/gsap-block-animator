@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["assets/typescript/*"],
+      "@/types/*": ["assets/typescript/types/*"],
+      "@/components/*": ["assets/typescript/components/*"],
+      "@/services/*": ["assets/typescript/services/*"],
+      "@/utils/*": ["assets/typescript/utils/*"],
+      "@/hooks/*": ["assets/typescript/hooks/*"]
+    }
+  },
+  "include": [
+    "assets/typescript/**/*",
+    "__tests__/**/*",
+    "e2e/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "vendor",
+    "assets/dist"
+  ]
+}
