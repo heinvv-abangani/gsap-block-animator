@@ -23,16 +23,16 @@ class FrontendInitializer {
 	}
 
 	private initialize(): void {
-			if ( ! this.checkGSAPAvailability() ) {
-				return;
+		if ( ! this.checkGSAPAvailability() ) {
+			return;
 		}
 
-			this.registerScrollTriggerIfAvailable();
+		this.registerScrollTriggerIfAvailable();
 		this.exposeControllerGlobally();
 		this.handleReducedMotionPreference();
 		this.bindVisibilityChangeEvents();
 		this.bindResizeEventsWithThrottling();
-		}
+	}
 
 	private checkGSAPAvailability(): boolean {
 		return typeof window.gsap !== 'undefined';

@@ -27,7 +27,7 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.Compon
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				InspectorControls as any,
 				null,
-				createElement( AnimationPanel, props )
+				createElement( AnimationPanel, props ),
 			),
 		);
 	};
@@ -53,7 +53,7 @@ const registerAnimationControls = (): void => {
 			'gsap-block-animator/add-animation-controls',
 			withAnimationPanel,
 		);
-	} catch (error) {
+	} catch ( error ) {
 		// Silently handle registration errors
 	}
 };
