@@ -94,9 +94,9 @@ add_action('plugins_loaded', function () {
 // Plugin activation hook
 register_activation_hook(__FILE__, function () {
     // Check requirements during activation
-    if (version_compare(PHP_VERSION, '8.2', '<')) {
+    if (version_compare(PHP_VERSION, '7.4', '<')) {
         wp_die(
-            esc_html__('GSAP Block Animator requires PHP 8.2 or higher.', 'gsap-block-animator'),
+            esc_html__('GSAP Block Animator requires PHP 7.4 or higher.', 'gsap-block-animator'),
             esc_html__('Plugin Activation Error', 'gsap-block-animator'),
             ['back_link' => true]
         );
