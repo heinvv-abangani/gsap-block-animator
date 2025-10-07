@@ -21,7 +21,7 @@ interface ContainerInterface extends PsrContainerInterface {
 	 * @param callable|string|object $concrete Service implementation
 	 * @return void
 	 */
-	public function bind( string $abstract, callable|string|object $concrete ): void;
+	public function bind( string $abstract, $concrete ): void;
 
 	/**
 	 * Bind a singleton service to the container
@@ -30,7 +30,7 @@ interface ContainerInterface extends PsrContainerInterface {
 	 * @param callable|string|object $concrete Service implementation
 	 * @return void
 	 */
-	public function singleton( string $abstract, callable|string|object $concrete ): void;
+	public function singleton( string $abstract, $concrete ): void;
 
 	/**
 	 * Resolve a service from the container

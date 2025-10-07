@@ -19,7 +19,7 @@ class Container implements ContainerInterface {
 	/**
 	 * Service bindings
 	 *
-	 * @var array<string, callable|string|object>
+	 * @var array<string, mixed>
 	 */
 	private array $bindings = array();
 
@@ -47,7 +47,7 @@ class Container implements ContainerInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function bind( string $type_name, callable|string|object $concrete ): void {
+	public function bind( string $type_name, $concrete ): void {
 		$this->bindings[ $type_name ]           = $concrete;
 		$this->singleton_bindings[ $type_name ] = false;
 
@@ -58,7 +58,7 @@ class Container implements ContainerInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function singleton( string $type_name, callable|string|object $concrete ): void {
+	public function singleton( string $type_name, $concrete ): void {
 		$this->bindings[ $type_name ]           = $concrete;
 		$this->singleton_bindings[ $type_name ] = true;
 	}
