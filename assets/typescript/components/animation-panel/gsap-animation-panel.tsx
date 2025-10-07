@@ -28,6 +28,45 @@ import type {
 	EaseType,
 	TimelineConfig,
 } from '../../types/animation';
+
+// Extended component prop types to include data-testid and other WordPress-specific props
+interface ExtendedToggleControlProps {
+	key: string;
+	label: string;
+	checked: boolean;
+	onChange: ( value: boolean ) => void;
+	help?: string;
+	'data-testid'?: string;
+}
+
+interface ExtendedTextControlProps {
+	key: string;
+	label: string;
+	value: string;
+	onChange: ( value: string ) => void;
+	placeholder?: string;
+	help?: string;
+	'data-testid'?: string;
+}
+
+interface ExtendedRangeControlProps {
+	key: string;
+	label: string;
+	value: number;
+	onChange: ( value?: number ) => void;
+	min: number;
+	max: number;
+	step: number;
+	help?: string;
+	'data-testid'?: string;
+}
+
+interface ExtendedPanelBodyProps {
+	title: string;
+	initialOpen?: boolean;
+	className?: string;
+	'data-testid'?: string;
+}
 import type { BlockEditProps } from '../../types/block';
 
 interface GSAPAnimationPanelProps extends BlockEditProps {
@@ -185,7 +224,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					? __( 'Animation is enabled for this block', 'gsap-block-animator' )
 					: __( 'Enable to add GSAP animation to this block', 'gsap-block-animator' ),
 				'data-testid': 'gsap-animation-toggle',
-			} as any ),
+			} as ExtendedToggleControlProps ),
 		);
 
 		// Show additional controls only when enabled
@@ -295,7 +334,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					placeholder: '0px',
 					help: __( 'Horizontal movement (px, %, em, etc.)', 'gsap-block-animator' ),
 					'data-testid': 'movement-x-input',
-				} as any ),
+				} as ExtendedTextControlProps ),
 				createElement( TextControl, {
 					key: 'y-movement',
 					label: __( 'Y Movement', 'gsap-block-animator' ),
@@ -344,7 +383,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					step: 0.1,
 					help: __( 'Animation duration in seconds', 'gsap-block-animator' ),
 					'data-testid': 'duration-input',
-				} as any ),
+				} as ExtendedRangeControlProps ),
 				createElement( RangeControl, {
 					key: 'delay',
 					label: __( 'Delay (seconds)', 'gsap-block-animator' ),
@@ -355,7 +394,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					step: 0.1,
 					help: __( 'Delay before animation starts', 'gsap-block-animator' ),
 					'data-testid': 'delay-input',
-				} as any ),
+				} as ExtendedRangeControlProps ),
 				createElement( SelectControl, {
 					key: 'easing',
 					label: __( 'Easing', 'gsap-block-animator' ),
@@ -407,7 +446,7 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 			initialOpen: gsapAnimation.enabled,
 			className: 'gsap-animation-panel',
 			'data-testid': 'gsap-animation-panel',
-		} as any,
+		} as ExtendedPanelBodyProps,
 		...renderControls(),
 	);
 }
