@@ -61,11 +61,14 @@ jobs:
           echo "🚀 Starting WordPress environment..."
           
           # Start wp-env with timeout protection
-          timeout 150 npx wp-env start --config=.wp-env.json || {
-            echo "❌ WordPress start timed out, checking logs..."
-            npx wp-env logs || echo "No logs available"
+          if ! timeout 150 npx wp-env start --config=.wp-env.json 2>&1; then
+            echo "❌ WordPress start failed, checking logs..."
+            echo "📋 WordPress logs:"
+            npx wp-env logs 2>/dev/null || echo "No logs available"
+            echo "📋 Error log:"
+            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -20 || echo "No debug.log"
             exit 1
-          }
+          fi
           
           echo "✅ WordPress environment started"
           echo "⏱️ Waiting for services to stabilize..."

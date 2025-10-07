@@ -120,16 +120,32 @@ register_activation_hook(__FILE__, function () {
 
     // Create necessary database tables or options
     try {
+        error_log('GSAP Block Animator: Starting plugin activation');
+        
+        // Check if required interfaces are available
+        if (!interface_exists('\Psr\Container\ContainerInterface')) {
+            throw new Exception('PSR Container interface not found. Composer autoloader may not be loaded.');
+        }
+        error_log('GSAP Block Animator: PSR interfaces are available');
+        
         $plugin = Plugin::get_instance();
+        error_log('GSAP Block Animator: Plugin instance created successfully');
         $plugin->activate();
+        error_log('GSAP Block Animator: Plugin activated successfully');
     } catch (\Throwable $e) {
-        error_log(sprintf(
-            'GSAP Block Animator activation error: %s',
-            $e->getMessage()
-        ));
+        $error_msg = sprintf(
+            'GSAP Block Animator activation error: %s in %s:%d',
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine()
+        );
+        error_log($error_msg);
         
         wp_die(
-            esc_html__('Failed to activate GSAP Block Animator. Please check error logs.', 'gsap-block-animator'),
+            sprintf(
+                esc_html__('Failed to activate GSAP Block Animator: %s', 'gsap-block-animator'),
+                esc_html($e->getMessage())
+            ),
             esc_html__('Plugin Activation Error', 'gsap-block-animator'),
             ['back_link' => true]
         );
