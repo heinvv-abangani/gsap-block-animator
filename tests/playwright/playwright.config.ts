@@ -10,7 +10,7 @@ export default defineConfig({
   timeout: 60000, // Increased timeout for WordPress operations
   use: {
     // Use environment variable for CI, fallback to local development URL
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://elementor.local:10003',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8888',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

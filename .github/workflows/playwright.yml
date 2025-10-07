@@ -79,7 +79,10 @@ jobs:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:8888
         run: |
-          npx playwright test
+          echo "Base URL: $PLAYWRIGHT_BASE_URL"
+          echo "WordPress status check:"
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:8888 || echo "WordPress not responding"
+          npx playwright test --reporter=list,html
           echo "exit_code=$?" >> $GITHUB_OUTPUT
         continue-on-error: false
 
