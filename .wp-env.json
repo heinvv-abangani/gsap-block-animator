@@ -1,6 +1,6 @@
 {
   "core": "WordPress/WordPress#6.4",
-  "phpVersion": "8.2",
+  "phpVersion": "7.4",
   "plugins": [
     "."
   ],
@@ -21,7 +21,7 @@
   "env": {
     "tests": {
       "core": "WordPress/WordPress#6.4",
-      "phpVersion": "8.2",
+      "phpVersion": "7.4",
       "config": {
         "WP_DEBUG": true,
         "WP_DEBUG_LOG": true,

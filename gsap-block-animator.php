@@ -12,7 +12,7 @@
  * Domain Path: /languages
  * Requires at least: 6.0
  * Tested up to: 6.4
- * Requires PHP: 8.2
+ * Requires PHP: 7.4
  * Network: false
  *
  * @package GSAPBlockAnimator
@@ -37,14 +37,14 @@ define('GSAP_BLOCK_ANIMATOR_ASSETS_URL', GSAP_BLOCK_ANIMATOR_PLUGIN_URL . 'asset
 define('GSAP_BLOCK_ANIMATOR_DIST_URL', GSAP_BLOCK_ANIMATOR_ASSETS_URL . 'dist/');
 
 // Check PHP version
-if (version_compare(PHP_VERSION, '8.2', '<')) {
+if (version_compare(PHP_VERSION, '7.4', '<')) {
     add_action('admin_notices', function () {
         echo '<div class="notice notice-error"><p>';
         printf(
             /* translators: 1: Current PHP version, 2: Required PHP version */
             esc_html__('GSAP Block Animator requires PHP %2$s or higher. You are running PHP %1$s.', 'gsap-block-animator'),
             PHP_VERSION,
-            '8.2'
+            '7.4'
         );
         echo '</p></div>';
     });
