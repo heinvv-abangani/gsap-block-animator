@@ -51,14 +51,22 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
     return;
 }
 
-// Autoloader
-$autoloader = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'vendor/autoload.php';
-if (file_exists($autoloader)) {
-    require_once $autoloader;
+// Load autoloaders
+$vendor_autoloader = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'vendor/autoload.php';
+$custom_autoloader = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'includes/autoloader.php';
+
+// Load vendor autoloader if available
+if (file_exists($vendor_autoloader)) {
+    require_once $vendor_autoloader;
+}
+
+// Always load our custom autoloader for plugin classes
+if (file_exists($custom_autoloader)) {
+    require_once $custom_autoloader;
 } else {
     add_action('admin_notices', function () {
         echo '<div class="notice notice-error"><p>';
-        esc_html_e('GSAP Block Animator: Composer autoloader not found. Please run "composer install".', 'gsap-block-animator');
+        esc_html_e('GSAP Block Animator: Plugin autoloader not found. Plugin installation may be corrupted.', 'gsap-block-animator');
         echo '</p></div>';
     });
     return;
