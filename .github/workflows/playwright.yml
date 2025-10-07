@@ -41,39 +41,46 @@ jobs:
         run: npm run build
 
       - name: Setup WordPress environment
+        timeout-minutes: 5
         run: |
           npm install -g @wordpress/env
-          npx wp-env start --config=.wp-env.json
+          echo "Starting WordPress environment..."
+          npx wp-env start --config=.wp-env.json || (echo "WordPress start failed" && exit 1)
+          echo "WordPress environment started"
 
       - name: Wait for WordPress to be ready
+        timeout-minutes: 2
         run: |
-          timeout 60 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
+          echo "Waiting for WordPress to respond..."
+          timeout 120 bash -c 'until curl -s http://localhost:8888 >/dev/null; do echo "Waiting..."; sleep 2; done'
+          echo "WordPress is responding"
 
-      - name: Verify WordPress installation
+      - name: Setup WordPress and plugin
+        timeout-minutes: 3
         run: |
-          npx wp-env run cli wp core is-installed
-          npx wp-env run cli wp user list
-
-      - name: Install default WordPress theme
-        run: |
-          npx wp-env run cli wp theme install twentytwentyfour --activate
-
-      - name: Install and activate plugin
-        run: |
-          npx wp-env run cli wp plugin activate gsap-block-animator
-
-      - name: Verify plugin activation
-        run: |
+          echo "Verifying WordPress installation..."
+          npx wp-env run cli wp core is-installed || (echo "WordPress not installed" && exit 1)
+          
+          echo "Activating plugin..."
+          npx wp-env run cli wp plugin activate gsap-block-animator || (echo "Plugin activation failed" && npx wp-env logs && exit 1)
+          
+          echo "Verifying plugin is active..."
           npx wp-env run cli wp plugin list --status=active
+          echo "WordPress setup complete"
 
       - name: Setup Playwright
+        timeout-minutes: 3
         working-directory: ./tests/playwright
         run: |
+          echo "Installing Playwright dependencies..."
           npm install
+          echo "Installing Playwright browsers..."
           npx playwright install chromium
+          echo "Playwright setup complete"
 
       - name: Run Playwright tests
         id: playwright-tests
+        timeout-minutes: 10
         working-directory: ./tests/playwright
         env:
           CI: true
@@ -82,9 +89,16 @@ jobs:
           echo "Base URL: $PLAYWRIGHT_BASE_URL"
           echo "WordPress status check:"
           curl -s -o /dev/null -w "%{http_code}" http://localhost:8888 || echo "WordPress not responding"
-          npx playwright test --reporter=list,html
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-        continue-on-error: false
+          
+          echo "Starting Playwright tests..."
+          npx playwright test --reporter=list,html --timeout=30000
+          test_exit_code=$?
+          echo "exit_code=$test_exit_code" >> $GITHUB_OUTPUT
+          
+          if [ $test_exit_code -ne 0 ]; then
+            echo "Tests failed with exit code $test_exit_code"
+            exit $test_exit_code
+          fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
