@@ -47,8 +47,29 @@ test.describe( 'GSAP Block Animator - Initial GSAP Creation and Saving', () => {
 		await page.goto( `/wp-admin/post.php?post=${ postId }&action=edit` );
 		await page.waitForLoadState( 'domcontentloaded' );
 
+		// Dismiss any welcome modal or overlay that might be blocking interactions
+		try {
+			// Wait for and dismiss the WordPress welcome modal if present
+			await page.locator( '.components-modal__screen-overlay' ).waitFor( { timeout: 5000 } );
+			await page.keyboard.press( 'Escape' );
+			await page.waitForTimeout( 1000 );
+		} catch ( error ) {
+			// Modal not present, continue
+		}
+
+		// Try to close any other potential modals
+		try {
+			await page.locator( '[aria-label="Close"]' ).click( { timeout: 2000 } );
+			await page.waitForTimeout( 1000 );
+		} catch ( error ) {
+			// No close button found, continue
+		}
+
 		const editorFrame = page.locator( 'iframe[name="editor-canvas"]' ).contentFrame();
 
+		// Wait for the editor frame to be ready
+		await editorFrame.waitForLoadState( 'domcontentloaded' );
+		
 		await editorFrame.getByText( 'Test paragraph for GSAP animation' ).click();
 
 		await test.step( 'Configure GSAP animation settings', async () => {
@@ -78,7 +99,25 @@ test.describe( 'GSAP Block Animator - Initial GSAP Creation and Saving', () => {
 			await page.reload();
 			await page.waitForLoadState( 'domcontentloaded' );
 
+			// Dismiss any welcome modal or overlay that might appear after refresh
+			try {
+				await page.locator( '.components-modal__screen-overlay' ).waitFor( { timeout: 5000 } );
+				await page.keyboard.press( 'Escape' );
+				await page.waitForTimeout( 1000 );
+			} catch ( error ) {
+				// Modal not present, continue
+			}
+
+			// Try to close any other potential modals
+			try {
+				await page.locator( '[aria-label="Close"]' ).click( { timeout: 2000 } );
+				await page.waitForTimeout( 1000 );
+			} catch ( error ) {
+				// No close button found, continue
+			}
+
 			const editorFrameRefresh = page.locator( 'iframe[name="editor-canvas"]' ).contentFrame();
+			await editorFrameRefresh.waitForLoadState( 'domcontentloaded' );
 			await expect( editorFrameRefresh.getByText( 'Test paragraph for GSAP animation' ) ).toBeVisible();
 
 			await editorFrameRefresh.getByText( 'Test paragraph for GSAP animation' ).click();
