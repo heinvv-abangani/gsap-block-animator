@@ -40,33 +40,81 @@ jobs:
       - name: Build plugin
         run: npm run build
 
+      - name: Verify wp-env configuration
+        run: |
+          echo "📋 wp-env.json configuration:"
+          cat .wp-env.json
+          echo ""
+
       - name: Setup WordPress environment
         timeout-minutes: 5
         run: |
           npm install -g @wordpress/env
-          echo "Starting WordPress environment..."
-          npx wp-env start --config=.wp-env.json || (echo "WordPress start failed" && exit 1)
-          echo "WordPress environment started"
+          echo "🚀 Starting WordPress environment..."
+          npx wp-env start --config=.wp-env.json
+          echo "📊 WordPress container status:"
+          npx wp-env run cli wp --info
+          echo "⏱️ Waiting for WordPress to fully initialize..."
+          sleep 10
 
       - name: Wait for WordPress to be ready
         timeout-minutes: 2
         run: |
-          echo "Waiting for WordPress to respond..."
+          echo "🔍 Waiting for WordPress to respond..."
           timeout 120 bash -c 'until curl -s http://localhost:8888 >/dev/null; do echo "Waiting..."; sleep 2; done'
-          echo "WordPress is responding"
+          echo "✅ WordPress is responding"
+
+      - name: Debug plugin files
+        run: |
+          echo "📁 Plugin directory structure:"
+          ls -la /home/runner/work/gsap-block-animator/gsap-block-animator/
+          echo ""
+          echo "📁 Plugin includes directory:"
+          ls -la /home/runner/work/gsap-block-animator/gsap-block-animator/includes/ || echo "Includes directory not found"
+          echo ""
+          echo "📁 Plugin vendor directory:"
+          ls -la /home/runner/work/gsap-block-animator/gsap-block-animator/vendor/ || echo "Vendor directory not found"
+          echo ""
+          echo "📋 Composer autoloader check:"
+          [ -f /home/runner/work/gsap-block-animator/gsap-block-animator/vendor/autoload.php ] && echo "✅ Composer autoloader exists" || echo "❌ Composer autoloader missing"
+          echo ""
+          echo "📁 WordPress plugins directory:"
+          npx wp-env run cli ls -la /var/www/html/wp-content/plugins/gsap-block-animator/ || echo "Plugin not found in WordPress"
+          echo ""
+          echo "📋 Plugin main file in WordPress:"
+          npx wp-env run cli test -f /var/www/html/wp-content/plugins/gsap-block-animator/gsap-block-animator.php && echo "✅ Main plugin file exists" || echo "❌ Main plugin file missing"
+          echo ""
+          echo "🔍 Testing PHP syntax in WordPress environment:"
+          npx wp-env run cli php -l /var/www/html/wp-content/plugins/gsap-block-animator/gsap-block-animator.php || echo "❌ PHP syntax error in main file"
 
       - name: Setup WordPress and plugin
         timeout-minutes: 3
         run: |
-          echo "Verifying WordPress installation..."
-          npx wp-env run cli wp core is-installed || (echo "WordPress not installed" && exit 1)
+          echo "🔍 Verifying WordPress installation..."
+          npx wp-env run cli wp core is-installed || (echo "❌ WordPress not installed" && exit 1)
           
-          echo "Activating plugin..."
-          npx wp-env run cli wp plugin activate gsap-block-animator || (echo "Plugin activation failed" && npx wp-env logs && exit 1)
+          echo "📋 Available plugins before activation:"
+          npx wp-env run cli wp plugin list
+          echo ""
           
-          echo "Verifying plugin is active..."
+          echo "🔌 Attempting to activate plugin..."
+          if ! npx wp-env run cli wp plugin activate gsap-block-animator; then
+            echo "❌ Plugin activation failed. Getting error logs..."
+            echo "📋 WordPress error log:"
+            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null || echo "No debug.log found"
+            echo ""
+            echo "📋 WordPress environment logs:"
+            npx wp-env logs
+            echo ""
+            echo "📋 Plugin status:"
+            npx wp-env run cli wp plugin status gsap-block-animator || echo "Plugin status unavailable"
+            exit 1
+          fi
+          
+          echo "✅ Plugin activated successfully"
+          echo "📋 Active plugins:"
           npx wp-env run cli wp plugin list --status=active
-          echo "WordPress setup complete"
+          echo "✅ WordPress setup complete"
 
       - name: Setup Playwright
         timeout-minutes: 3
