@@ -71,8 +71,11 @@ jobs:
       - name: Setup WordPress and plugin
         timeout-minutes: 1
         run: |
-          echo "🔍 Checking WordPress..."
+          echo "🔍 Waiting for WordPress..."
           timeout 30 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
+          
+          echo "📊 Installing WordPress..."
+          npx wp-env run cli wp core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com --skip-email
           
           echo "🔌 Activating plugin..."
           if ! npx wp-env run cli wp plugin activate gsap-block-animator; then
@@ -81,7 +84,7 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Plugin activated"
+          echo "✅ Setup complete"
 
       - name: Setup Playwright
         timeout-minutes: 2

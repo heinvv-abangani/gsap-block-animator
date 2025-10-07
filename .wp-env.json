@@ -15,9 +15,6 @@
   },
   "port": 8888,
   "testsPort": 8889,
-  "lifecycleScripts": {
-    "afterStart": "wp core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com --skip-email"
-  },
   "env": {
     "tests": {
       "core": "WordPress/WordPress#6.4",
