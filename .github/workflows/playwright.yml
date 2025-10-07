@@ -1,0 +1,112 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  playwright-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-scripts --optimize-autoloader
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Setup WordPress environment
+        run: |
+          npm install -g @wordpress/env
+          npx wp-env start --config=.wp-env.json
+
+      - name: Wait for WordPress to be ready
+        run: |
+          timeout 60 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
+
+      - name: Verify WordPress installation
+        run: |
+          npx wp-env run cli wp core is-installed
+          npx wp-env run cli wp user list
+
+      - name: Install default WordPress theme
+        run: |
+          npx wp-env run cli wp theme install twentytwentyfour --activate
+
+      - name: Install and activate plugin
+        run: |
+          npx wp-env run cli wp plugin activate gsap-block-animator
+
+      - name: Verify plugin activation
+        run: |
+          npx wp-env run cli wp plugin list --status=active
+
+      - name: Setup Playwright
+        working-directory: ./tests/playwright
+        run: |
+          npm ci
+          npx playwright install chromium
+
+      - name: Run Playwright tests
+        id: playwright-tests
+        working-directory: ./tests/playwright
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:8888
+        run: |
+          npx playwright test
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: false
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: tests/playwright/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: tests/playwright/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Check test results
+        if: steps.playwright-tests.outcome == 'failure'
+        run: |
+          echo "❌ Playwright tests failed!"
+          exit 1
+
+      - name: Stop WordPress environment
+        if: always()
+        run: npx wp-env stop

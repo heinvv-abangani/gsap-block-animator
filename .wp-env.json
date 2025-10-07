@@ -1,0 +1,36 @@
+{
+  "core": "WordPress/WordPress#6.4",
+  "phpVersion": "8.1",
+  "plugins": [
+    "."
+  ],
+  "themes": [
+    "https://downloads.wordpress.org/theme/twentytwentyfour.zip"
+  ],
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true,
+    "WP_DEBUG_DISPLAY": false,
+    "SCRIPT_DEBUG": true
+  },
+  "port": 8888,
+  "testsPort": 8889,
+  "lifecycleScripts": {
+    "afterStart": [
+      "wp-cli core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com"
+    ]
+  },
+  "env": {
+    "tests": {
+      "core": "WordPress/WordPress#6.4",
+      "phpVersion": "8.1",
+      "config": {
+        "WP_DEBUG": true,
+        "WP_DEBUG_LOG": true,
+        "WP_DEBUG_DISPLAY": true,
+        "SCRIPT_DEBUG": true,
+        "WP_ENVIRONMENT_TYPE": "development"
+      }
+    }
+  }
+}

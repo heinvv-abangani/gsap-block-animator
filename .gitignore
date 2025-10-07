@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 vendor/
+backup/
 
 # Build outputs
 dist/
@@ -51,3 +52,6 @@ temp/
 .env.development.local
 .env.test.local
 .env.production.local
+
+tests/playwright/node_modules/
+tests/playwright/test-results/

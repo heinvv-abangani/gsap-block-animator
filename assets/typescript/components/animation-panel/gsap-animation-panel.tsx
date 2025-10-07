@@ -184,7 +184,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 				help: gsapAnimation.enabled
 					? __( 'Animation is enabled for this block', 'gsap-block-animator' )
 					: __( 'Enable to add GSAP animation to this block', 'gsap-block-animator' ),
-			} ),
+				'data-testid': 'gsap-animation-toggle',
+			} as any ),
 		);
 
 		// Show additional controls only when enabled
@@ -293,7 +294,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					onChange: ( value: string ) => updateProperty( 'x', value ),
 					placeholder: '0px',
 					help: __( 'Horizontal movement (px, %, em, etc.)', 'gsap-block-animator' ),
-				} ),
+					'data-testid': 'movement-x-input',
+				} as any ),
 				createElement( TextControl, {
 					key: 'y-movement',
 					label: __( 'Y Movement', 'gsap-block-animator' ),
@@ -341,7 +343,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					max: 5,
 					step: 0.1,
 					help: __( 'Animation duration in seconds', 'gsap-block-animator' ),
-				} ),
+					'data-testid': 'duration-input',
+				} as any ),
 				createElement( RangeControl, {
 					key: 'delay',
 					label: __( 'Delay (seconds)', 'gsap-block-animator' ),
@@ -351,7 +354,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 					max: 3,
 					step: 0.1,
 					help: __( 'Delay before animation starts', 'gsap-block-animator' ),
-				} ),
+					'data-testid': 'delay-input',
+				} as any ),
 				createElement( SelectControl, {
 					key: 'easing',
 					label: __( 'Easing', 'gsap-block-animator' ),
@@ -402,7 +406,8 @@ function GSAPAnimationPanel( { attributes, setAttributes }: GSAPAnimationPanelPr
 			title: __( 'GSAP Animation', 'gsap-block-animator' ),
 			initialOpen: gsapAnimation.enabled,
 			className: 'gsap-animation-panel',
-		},
+			'data-testid': 'gsap-animation-panel',
+		} as any,
 		...renderControls(),
 	);
 }
