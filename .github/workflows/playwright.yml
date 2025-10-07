@@ -55,17 +55,10 @@ jobs:
           echo ""
 
       - name: Setup WordPress environment
-        timeout-minutes: 2
+        timeout-minutes: 3
         run: |
-          npm install -g @wordpress/env
           echo "🚀 Starting WordPress environment..."
-          
-          # Start wp-env with shorter timeout
-          if ! timeout 90 npx wp-env start --config=.wp-env.json; then
-            echo "❌ WordPress start timed out after 90s"
-            exit 1
-          fi
-          
+          npx @wordpress/env start --config=.wp-env.json
           echo "✅ WordPress started"
 
       - name: Setup WordPress and plugin
@@ -75,12 +68,12 @@ jobs:
           timeout 30 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
           
           echo "📊 Installing WordPress..."
-          npx wp-env run cli wp core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com --skip-email
+          npx @wordpress/env run cli wp core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com --skip-email
           
           echo "🔌 Activating plugin..."
-          if ! npx wp-env run cli wp plugin activate gsap-block-animator; then
+          if ! npx @wordpress/env run cli wp plugin activate gsap-block-animator; then
             echo "❌ Plugin activation failed"
-            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log"
+            npx @wordpress/env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log"
             exit 1
           fi
           
@@ -130,4 +123,4 @@ jobs:
 
       - name: Stop WordPress environment
         if: always()
-        run: npx wp-env stop
+        run: npx @wordpress/env stop
