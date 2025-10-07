@@ -55,88 +55,51 @@ jobs:
           echo ""
 
       - name: Setup WordPress environment
-        timeout-minutes: 3
+        timeout-minutes: 2
         run: |
           npm install -g @wordpress/env
           echo "🚀 Starting WordPress environment..."
           
-          # Start wp-env with timeout protection
-          if ! timeout 150 npx wp-env start --config=.wp-env.json 2>&1; then
-            echo "❌ WordPress start failed, checking logs..."
-            echo "📋 WordPress logs:"
-            npx wp-env logs 2>/dev/null || echo "No logs available"
-            echo "📋 Error log:"
-            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -20 || echo "No debug.log"
+          # Start wp-env with shorter timeout
+          if ! timeout 90 npx wp-env start --config=.wp-env.json; then
+            echo "❌ WordPress start timed out after 90s"
             exit 1
           fi
           
-          echo "✅ WordPress environment started"
-          echo "⏱️ Waiting for services to stabilize..."
-          sleep 5
-
-      - name: Wait for WordPress to be ready
-        timeout-minutes: 2
-        run: |
-          echo "🔍 Waiting for WordPress to respond..."
-          timeout 120 bash -c 'until curl -s http://localhost:8888 >/dev/null; do echo "Waiting..."; sleep 2; done'
-          echo "✅ WordPress is responding"
-
-      - name: Debug plugin files
-        timeout-minutes: 1
-        run: |
-          echo "📋 Quick plugin checks:"
-          [ -f vendor/autoload.php ] && echo "✅ Autoloader exists" || echo "❌ Autoloader missing"
-          [ -d includes ] && echo "✅ Includes directory exists" || echo "❌ Includes missing"
-          npx wp-env run cli test -f /var/www/html/wp-content/plugins/gsap-block-animator/gsap-block-animator.php && echo "✅ Plugin file in WordPress" || echo "❌ Plugin file missing"
+          echo "✅ WordPress started"
 
       - name: Setup WordPress and plugin
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
-          echo "🔍 Verifying WordPress..."
-          npx wp-env run cli wp core is-installed || { echo "❌ WordPress not ready"; exit 1; }
+          echo "🔍 Checking WordPress..."
+          timeout 30 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
           
           echo "🔌 Activating plugin..."
-          if ! timeout 60 npx wp-env run cli wp plugin activate gsap-block-animator 2>&1; then
+          if ! npx wp-env run cli wp plugin activate gsap-block-animator; then
             echo "❌ Plugin activation failed"
-            echo "📋 Debug logs:"
-            npx wp-env run cli wp plugin status gsap-block-animator 2>/dev/null || echo "Plugin status unavailable"
-            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -20 || echo "No debug.log"
+            npx wp-env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log"
             exit 1
           fi
           
           echo "✅ Plugin activated"
 
       - name: Setup Playwright
-        timeout-minutes: 3
+        timeout-minutes: 2
         working-directory: ./tests/playwright
         run: |
-          echo "Installing Playwright dependencies..."
           npm install
-          echo "Installing Playwright browsers..."
           npx playwright install chromium
-          echo "Playwright setup complete"
 
       - name: Run Playwright tests
         id: playwright-tests
-        timeout-minutes: 10
+        timeout-minutes: 5
         working-directory: ./tests/playwright
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:8888
         run: |
-          echo "Base URL: $PLAYWRIGHT_BASE_URL"
-          echo "WordPress status check:"
-          curl -s -o /dev/null -w "%{http_code}" http://localhost:8888 || echo "WordPress not responding"
-          
-          echo "Starting Playwright tests..."
-          npx playwright test --reporter=list,html --timeout=30000
-          test_exit_code=$?
-          echo "exit_code=$test_exit_code" >> $GITHUB_OUTPUT
-          
-          if [ $test_exit_code -ne 0 ]; then
-            echo "Tests failed with exit code $test_exit_code"
-            exit $test_exit_code
-          fi
+          echo "🧪 Starting tests..."
+          npx playwright test --reporter=list
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
