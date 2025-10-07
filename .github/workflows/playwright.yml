@@ -55,29 +55,48 @@ jobs:
           echo ""
 
       - name: Setup WordPress environment
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: |
           echo "🚀 Starting WordPress environment..."
           npx @wordpress/env start --config=.wp-env.json
           echo "✅ WordPress started"
 
-      - name: Setup WordPress and plugin
+      - name: Wait for WordPress
+        timeout-minutes: 2
+        run: |
+          echo "🔍 Waiting for WordPress to be ready..."
+          timeout 90 bash -c 'until curl -s http://localhost:8888 >/dev/null; do 
+            echo "Waiting for WordPress at http://localhost:8888..."
+            sleep 2
+          done'
+          echo "✅ WordPress is responding"
+
+      - name: Install WordPress
+        timeout-minutes: 2
+        run: |
+          echo "📊 Installing WordPress..."
+          npx @wordpress/env run cli wp core install \
+            --url=http://localhost:8888 \
+            --title='Test Site' \
+            --admin_user=admin \
+            --admin_password=password \
+            --admin_email=admin@example.com \
+            --skip-email
+          echo "✅ WordPress installed"
+
+      - name: Activate plugin
         timeout-minutes: 1
         run: |
-          echo "🔍 Waiting for WordPress..."
-          timeout 30 bash -c 'until curl -s http://localhost:8888 >/dev/null; do sleep 1; done'
-          
-          echo "📊 Installing WordPress..."
-          npx @wordpress/env run cli wp core install --url=http://localhost:8888 --title='Test Site' --admin_user=admin --admin_password=password --admin_email=admin@example.com --skip-email
-          
           echo "🔌 Activating plugin..."
           if ! npx @wordpress/env run cli wp plugin activate gsap-block-animator; then
             echo "❌ Plugin activation failed"
-            npx @wordpress/env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log"
+            echo "🔍 Checking debug logs..."
+            npx @wordpress/env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log available"
+            echo "🔍 Checking plugin status..."
+            npx @wordpress/env run cli wp plugin list
             exit 1
           fi
-          
-          echo "✅ Setup complete"
+          echo "✅ Plugin activated successfully"
 
       - name: Setup Playwright
         timeout-minutes: 2
