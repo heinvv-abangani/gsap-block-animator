@@ -67,8 +67,8 @@ test.describe( 'GSAP Block Animator - Initial GSAP Creation and Saving', () => {
 
 		const editorFrame = page.locator( 'iframe[name="editor-canvas"]' ).contentFrame();
 
-		// Wait for the editor frame to be ready
-		await editorFrame.waitForLoadState( 'domcontentloaded' );
+		// Wait for the paragraph to be visible in the editor frame
+		await editorFrame.getByText( 'Test paragraph for GSAP animation' ).waitFor();
 		
 		await editorFrame.getByText( 'Test paragraph for GSAP animation' ).click();
 
@@ -117,7 +117,6 @@ test.describe( 'GSAP Block Animator - Initial GSAP Creation and Saving', () => {
 			}
 
 			const editorFrameRefresh = page.locator( 'iframe[name="editor-canvas"]' ).contentFrame();
-			await editorFrameRefresh.waitForLoadState( 'domcontentloaded' );
 			await expect( editorFrameRefresh.getByText( 'Test paragraph for GSAP animation' ) ).toBeVisible();
 
 			await editorFrameRefresh.getByText( 'Test paragraph for GSAP animation' ).click();
