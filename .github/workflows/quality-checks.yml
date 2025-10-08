@@ -18,7 +18,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '7.4'
         extensions: mbstring, xml, ctype, iconv, intl
         tools: composer:v2
 
@@ -31,7 +31,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress
 
     - name: PHP Syntax Check
       run: find includes/ -name "*.php" -exec php -l {} \;
@@ -90,7 +90,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '7.4'
         extensions: mbstring, xml, ctype, iconv, intl
         tools: composer:v2
 
@@ -101,7 +101,7 @@ jobs:
         cache: 'npm'
 
     - name: Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress
 
     - name: Install npm dependencies
       run: npm install

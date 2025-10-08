@@ -1,0 +1,145 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  playwright-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-scripts --optimize-autoloader
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Pre-flight checks
+        run: |
+          echo "🔍 Pre-flight validation..."
+          php -l gsap-block-animator.php || { echo "❌ Main file syntax error"; exit 1; }
+          [ -f includes/autoloader.php ] || { echo "❌ Autoloader missing"; exit 1; }
+          [ -f includes/plugin.php ] || { echo "❌ Plugin class missing"; exit 1; }
+          echo "✅ Basic validation passed"
+
+      - name: Verify wp-env configuration
+        run: |
+          echo "📋 wp-env.json configuration:"
+          cat .wp-env.json
+          echo ""
+
+      - name: Setup WordPress environment
+        timeout-minutes: 5
+        run: |
+          echo "🚀 Starting WordPress environment..."
+          npx @wordpress/env start --config=.wp-env.json
+          echo "✅ WordPress started"
+
+      - name: Wait for WordPress
+        timeout-minutes: 2
+        run: |
+          echo "🔍 Waiting for WordPress to be ready..."
+          timeout 90 bash -c 'until curl -s http://localhost:8888 >/dev/null; do 
+            echo "Waiting for WordPress at http://localhost:8888..."
+            sleep 2
+          done'
+          echo "✅ WordPress is responding"
+
+      - name: Install WordPress
+        timeout-minutes: 2
+        run: |
+          echo "📊 Installing WordPress..."
+          npx @wordpress/env run cli wp core install \
+            --url=http://localhost:8888 \
+            --title='Test Site' \
+            --admin_user=admin \
+            --admin_password=password \
+            --admin_email=admin@example.com \
+            --skip-email
+          echo "✅ WordPress installed"
+
+      - name: Activate plugin
+        timeout-minutes: 1
+        run: |
+          echo "🔌 Activating plugin..."
+          if ! npx @wordpress/env run cli wp plugin activate gsap-block-animator; then
+            echo "❌ Plugin activation failed"
+            echo "🔍 Checking debug logs..."
+            npx @wordpress/env run cli cat /var/www/html/wp-content/debug.log 2>/dev/null | tail -10 || echo "No debug.log available"
+            echo "🔍 Checking plugin status..."
+            npx @wordpress/env run cli wp plugin list
+            exit 1
+          fi
+          echo "✅ Plugin activated successfully"
+
+      - name: Setup Playwright
+        timeout-minutes: 2
+        working-directory: ./tests/playwright
+        run: |
+          npm install
+          npx playwright install chromium
+
+      - name: Run Playwright tests
+        id: playwright-tests
+        timeout-minutes: 5
+        working-directory: ./tests/playwright
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:8888
+        run: |
+          echo "🧪 Starting tests..."
+          npx playwright test --reporter=list
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: tests/playwright/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: tests/playwright/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Check test results
+        if: steps.playwright-tests.outcome == 'failure'
+        run: |
+          echo "❌ Playwright tests failed!"
+          exit 1
+
+      - name: Stop WordPress environment
+        if: always()
+        run: npx @wordpress/env stop
