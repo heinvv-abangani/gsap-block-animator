@@ -6,7 +6,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 const { InspectorControls } = ( window.wp as any ).blockEditor;
 import { createElement } from '@wordpress/element';
 
-import { AnimationPanel } from './components/animation-panel/animation-panel';
+import { GSAPAnimationPanel, addGSAPAttributes } from './components/animation-panel/gsap-animation-panel';
 import type { BlockEditProps } from './types/block';
 
 // Global types handled in types/global.d.ts
@@ -27,7 +27,7 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.Compon
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				InspectorControls as any,
 				null,
-				createElement( AnimationPanel, props ),
+				createElement( GSAPAnimationPanel, props ),
 			),
 		);
 	};
@@ -49,12 +49,18 @@ const shouldSkipBlock = ( blockName: string ): boolean => {
 const registerAnimationControls = (): void => {
 	try {
 		addFilter(
+			'blocks.registerBlockType',
+			'gsap-block-animator/add-attributes',
+			addGSAPAttributes,
+		);
+		
+		addFilter(
 			'editor.BlockEdit',
 			'gsap-block-animator/add-animation-controls',
 			withAnimationPanel,
 		);
 	} catch ( error ) {
-		// Silently handle registration errors
+		console.error( 'GSAP Block Animator - Error registering animation controls:', error );
 	}
 };
 

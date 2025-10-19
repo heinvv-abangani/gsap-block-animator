@@ -186,6 +186,7 @@ class Plugin {
 		// Enqueue assets.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_frontend_assets' ) );
 
 		// Register block extensions.
 		add_action( 'init', array( $this, 'register_block_extensions' ), 5 );
@@ -212,12 +213,16 @@ class Plugin {
 			$this->enqueue_gsap_library();
 		}
 
+		// Get script version for cache busting
+		$frontend_file = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'assets/dist/js/frontend.js';
+		$script_version = $this->get_script_version( $frontend_file );
+
 		// Enqueue frontend script.
 		wp_enqueue_script(
 			'gsap-block-animator-frontend',
 			GSAP_BLOCK_ANIMATOR_DIST_URL . 'js/frontend.js',
 			array( 'gsap' ),
-			GSAP_BLOCK_ANIMATOR_VERSION,
+			$script_version,
 			true
 		);
 
@@ -233,6 +238,22 @@ class Plugin {
 	}
 
 	/**
+	 * Enqueue frontend assets in admin (for block editor previews)
+	 *
+	 * @return void
+	 */
+	public function enqueue_admin_frontend_assets(): void {
+		// Only enqueue on post edit screens
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->base, array( 'post', 'page' ), true ) ) {
+			return;
+		}
+
+		// Enqueue the same frontend assets for admin previews
+		$this->enqueue_frontend_assets();
+	}
+
+	/**
 	 * Enqueue editor assets
 	 *
 	 * @return void
@@ -240,6 +261,10 @@ class Plugin {
 	public function enqueue_editor_assets(): void {
 		// Enqueue GSAP for editor previews.
 		$this->enqueue_gsap_library();
+
+		// Get script version for cache busting
+		$editor_file = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'assets/dist/js/editor.js';
+		$script_version = $this->get_script_version( $editor_file );
 
 		// Enqueue editor script.
 		wp_enqueue_script(
@@ -254,7 +279,7 @@ class Plugin {
 				'wp-hooks',
 				'wp-i18n',
 			),
-			GSAP_BLOCK_ANIMATOR_VERSION,
+			$script_version,
 			true
 		);
 
@@ -327,6 +352,49 @@ class Plugin {
 			);
 			echo '</p></div>';
 		}
+
+		// Debug information for development.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			$this->show_debug_info();
+		}
+	}
+
+	/**
+	 * Show debug information in admin notices
+	 *
+	 * @return void
+	 */
+	private function show_debug_info(): void {
+		$editor_file = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'assets/dist/js/editor.js';
+		$frontend_file = GSAP_BLOCK_ANIMATOR_PLUGIN_DIR . 'assets/dist/js/frontend.js';
+		
+		$script_debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$editor_exists = file_exists( $editor_file );
+		$frontend_exists = file_exists( $frontend_file );
+		
+		$editor_version = $this->get_script_version( $editor_file );
+		$frontend_version = $this->get_script_version( $frontend_file );
+		
+		echo '<div class="notice notice-info"><h3>GSAP Block Animator - Debug Info</h3>';
+		echo '<table style="margin: 10px 0;">';
+		echo '<tr><td><strong>SCRIPT_DEBUG:</strong></td><td>' . ( $script_debug ? '✅ Enabled' : '❌ Disabled' ) . '</td></tr>';
+		echo '<tr><td><strong>Server Name:</strong></td><td>' . esc_html( $_SERVER['SERVER_NAME'] ?? 'N/A' ) . '</td></tr>';
+		echo '<tr><td><strong>HTTP Host:</strong></td><td>' . esc_html( $_SERVER['HTTP_HOST'] ?? 'N/A' ) . '</td></tr>';
+		echo '<tr><td><strong>Plugin Version:</strong></td><td>' . esc_html( GSAP_BLOCK_ANIMATOR_VERSION ) . '</td></tr>';
+		echo '<tr><td colspan="2"><hr></td></tr>';
+		echo '<tr><td><strong>Editor File:</strong></td><td>' . ( $editor_exists ? '✅ Exists' : '❌ Missing' ) . '</td></tr>';
+		echo '<tr><td><strong>Editor Version:</strong></td><td>' . esc_html( $editor_version ) . '</td></tr>';
+		if ( $editor_exists ) {
+			echo '<tr><td><strong>Editor Modified:</strong></td><td>' . esc_html( date( 'Y-m-d H:i:s', filemtime( $editor_file ) ) ) . '</td></tr>';
+		}
+		echo '<tr><td><strong>Frontend File:</strong></td><td>' . ( $frontend_exists ? '✅ Exists' : '❌ Missing' ) . '</td></tr>';
+		echo '<tr><td><strong>Frontend Version:</strong></td><td>' . esc_html( $frontend_version ) . '</td></tr>';
+		if ( $frontend_exists ) {
+			echo '<tr><td><strong>Frontend Modified:</strong></td><td>' . esc_html( date( 'Y-m-d H:i:s', filemtime( $frontend_file ) ) ) . '</td></tr>';
+		}
+		echo '</table>';
+		echo '<p><em>This debug info only shows when WP_DEBUG is enabled and you have admin capabilities.</em></p>';
+		echo '</div>';
 	}
 
 	/**
@@ -341,6 +409,62 @@ class Plugin {
 			dirname( plugin_basename( GSAP_BLOCK_ANIMATOR_PLUGIN_FILE ) ) . '/languages'
 		);
 	}
+
+	/**
+	 * Get script version for cache busting
+	 *
+	 * Uses filemtime() when SCRIPT_DEBUG is true,
+	 * falls back to plugin version for production.
+	 *
+	 * @param string $file_path Full path to the script file
+	 * @return string Version string for cache busting
+	 */
+	private function get_script_version( string $file_path ): string {
+		$use_filestamp = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$file_exists = file_exists( $file_path );
+		$version = GSAP_BLOCK_ANIMATOR_VERSION;
+
+		// Debug logging
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( sprintf(
+				'GSAP Block Animator - Script Version Debug:
+				File: %s
+				SCRIPT_DEBUG: %s
+				File Exists: %s
+				Server Name: %s
+				HTTP Host: %s',
+				$file_path,
+				$use_filestamp ? 'YES' : 'NO',
+				$file_exists ? 'YES' : 'NO',
+				$_SERVER['SERVER_NAME'] ?? 'N/A',
+				$_SERVER['HTTP_HOST'] ?? 'N/A'
+			) );
+		}
+
+		// Use filemtime when SCRIPT_DEBUG is enabled
+		if ( $use_filestamp && $file_exists ) {
+			$filemtime = filemtime( $file_path );
+			$version = (string) $filemtime;
+			
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( sprintf(
+					'GSAP Block Animator - Using filemtime: %s (timestamp: %s)',
+					$version,
+					date( 'Y-m-d H:i:s', $filemtime )
+				) );
+			}
+		} else {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( sprintf(
+					'GSAP Block Animator - Using plugin version: %s',
+					$version
+				) );
+			}
+		}
+
+		return $version;
+	}
+
 
 	/**
 	 * Enqueue GSAP library
