@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { createElement, useState, useEffect } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
+import { createElement, useState, useEffect, useMemo } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
-const { InspectorControls } = ( window.wp as any ).blockEditor;
+const { InspectorControls } = ( window.wp as unknown as { blockEditor: { InspectorControls: React.ComponentType<unknown> } } ).blockEditor;
 import {
 	PanelBody,
-	TabPanel,
 	Modal,
 	Button,
 	ToggleControl,
@@ -87,53 +85,53 @@ const TIMELINE_POSITION_OPTIONS: Array<{ label: string; value: string }> = [
 ];
 
 const CONTROL_TABS = [
-	{ 
-		name: 'basic', 
+	{
+		name: 'basic',
 		title: __( 'Basic', 'gsap-block-animator' ),
-		className: 'gsap-tab-basic'
+		className: 'gsap-tab-basic',
 	},
-	{ 
-		name: 'properties', 
+	{
+		name: 'properties',
 		title: __( 'Properties', 'gsap-block-animator' ),
-		className: 'gsap-tab-properties'
+		className: 'gsap-tab-properties',
 	},
-	{ 
-		name: 'timing', 
+	{
+		name: 'timing',
 		title: __( 'Timing', 'gsap-block-animator' ),
-		className: 'gsap-tab-timing'
+		className: 'gsap-tab-timing',
 	},
-	{ 
-		name: 'advanced', 
+	{
+		name: 'advanced',
 		title: __( 'Advanced', 'gsap-block-animator' ),
-		className: 'gsap-tab-advanced'
-	}
+		className: 'gsap-tab-advanced',
+	},
 ];
 
 function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimationPanelProps ): JSX.Element {
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [currentTab, setCurrentTab] = useState('basic');
-	
-	const gsapAnimation: AnimationConfig = {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const [ currentTab, setCurrentTab ] = useState( 'basic' );
+
+	const gsapAnimation: AnimationConfig = useMemo( () => ( {
 		...DEFAULT_ANIMATION_CONFIG,
 		...attributes.gsapAnimation,
-	};
+	} ), [ attributes.gsapAnimation ] );
 
 	// Add data attributes to block element in editor for previews
-	useEffect(() => {
-		if (gsapAnimation.enabled && clientId) {
-			const blockElement = document.querySelector(`[data-block="${clientId}"]`);
-			
-			if (blockElement) {
-				blockElement.setAttribute('data-gsap-animation', JSON.stringify(gsapAnimation));
-				blockElement.setAttribute('data-gsap-trigger', gsapAnimation.trigger);
-				blockElement.setAttribute('data-gsap-block-id', clientId);
+	useEffect( () => {
+		if ( gsapAnimation.enabled && clientId ) {
+			const blockElement = document.querySelector( `[data-block="${ clientId }"]` );
+
+			if ( blockElement ) {
+				blockElement.setAttribute( 'data-gsap-animation', JSON.stringify( gsapAnimation ) );
+				blockElement.setAttribute( 'data-gsap-trigger', gsapAnimation.trigger );
+				blockElement.setAttribute( 'data-gsap-block-id', clientId );
 			}
 		}
-	}, [gsapAnimation, clientId]);
+	}, [ gsapAnimation, clientId ] );
 
 	const updateAnimation = ( updates: Partial<AnimationConfig> ): void => {
 		const newConfig = { ...gsapAnimation, ...updates };
-		
+
 		setAttributes( {
 			gsapAnimation: newConfig,
 		} );
@@ -172,17 +170,17 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 
 		// Add enable/disable toggle at the top - full width
 		controls.push(
-			createElement( 'div', { 
+			createElement( 'div', {
 				key: 'enable-animation-container',
-				style: { gridColumn: '1 / -1', marginBottom: '16px' }
-			}, 
-				createElement( ToggleControl, {
-					key: 'enable-animation',
-					label: __( 'Enable Animation', 'gsap-block-animator' ),
-					checked: gsapAnimation.enabled,
-					onChange: ( enabled: boolean ) => updateAnimation( { enabled } ),
-					help: __( 'Turn animation on or off', 'gsap-block-animator' ),
-				} )
+				style: { gridColumn: '1 / -1', marginBottom: '16px' },
+			},
+			createElement( ToggleControl, {
+				key: 'enable-animation',
+				label: __( 'Enable Animation', 'gsap-block-animator' ),
+				checked: gsapAnimation.enabled,
+				onChange: ( enabled: boolean ) => updateAnimation( { enabled } ),
+				help: __( 'Turn animation on or off', 'gsap-block-animator' ),
+			} ),
 			),
 		);
 
@@ -228,18 +226,18 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 			updateAnimation( { enabled: true } );
 			updateProperty( key, value );
 		};
-		
+
 		// Transform section header - full width
 		controls.push(
 			createElement( 'h4', {
 				key: 'transform-heading',
-				style: { 
+				style: {
 					gridColumn: '1 / -1',
-					margin: '0 0 16px 0', 
-					fontSize: '14px', 
+					margin: '0 0 16px 0',
+					fontSize: '14px',
 					fontWeight: '600',
 					borderBottom: '1px solid #ddd',
-					paddingBottom: '8px'
+					paddingBottom: '8px',
 				},
 			}, __( 'Transform Properties', 'gsap-block-animator' ) ),
 			createElement( TextControl, {
@@ -280,13 +278,13 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 		controls.push(
 			createElement( 'h4', {
 				key: 'appearance-heading',
-				style: { 
+				style: {
 					gridColumn: '1 / -1',
-					margin: '24px 0 16px 0', 
-					fontSize: '14px', 
+					margin: '24px 0 16px 0',
+					fontSize: '14px',
 					fontWeight: '600',
 					borderBottom: '1px solid #ddd',
-					paddingBottom: '8px'
+					paddingBottom: '8px',
 				},
 			}, __( 'Appearance Properties', 'gsap-block-animator' ) ),
 			createElement( RangeControl, {
@@ -451,16 +449,16 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 		controls.push(
 			createElement( 'div', {
 				key: 'summary-container',
-				style: { gridColumn: '1 / -1' }
+				style: { gridColumn: '1 / -1' },
 			}, [
 				createElement( 'h4', {
 					key: 'summary-heading',
-					style: { 
-						margin: '24px 0 16px 0', 
-						fontSize: '14px', 
+					style: {
+						margin: '24px 0 16px 0',
+						fontSize: '14px',
 						fontWeight: '600',
 						borderBottom: '1px solid #ddd',
-						paddingBottom: '8px'
+						paddingBottom: '8px',
 					},
 				}, __( 'Configuration Summary', 'gsap-block-animator' ) ),
 				createElement( 'div', {
@@ -473,33 +471,32 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 						marginTop: '8px',
 					},
 				}, [
-				createElement( 'div', {
-					key: 'summary-title',
-					style: { fontWeight: 'bold', color: '#0073aa', marginBottom: '8px' },
-				}, '✅ ' + __( 'Animation Configured', 'gsap-block-animator' ) ),
-				createElement( 'div', {
-					key: 'summary-details',
-					style: { fontSize: '12px', color: '#666' },
-				}, [
-					__( 'Type:', 'gsap-block-animator' ) + ' ' + gsapAnimation.type + ' | ',
-					__( 'Trigger:', 'gsap-block-animator' ) + ' ' + gsapAnimation.trigger + ' | ',
-					__( 'Duration:', 'gsap-block-animator' ) + ' ' + gsapAnimation.timing.duration + 's',
-				].join( '' ) ),
-				] )
+					createElement( 'div', {
+						key: 'summary-title',
+						style: { fontWeight: 'bold', color: '#0073aa', marginBottom: '8px' },
+					}, '✅ ' + __( 'Animation Configured', 'gsap-block-animator' ) ),
+					createElement( 'div', {
+						key: 'summary-details',
+						style: { fontSize: '12px', color: '#666' },
+					}, [
+						__( 'Type:', 'gsap-block-animator' ) + ' ' + gsapAnimation.type + ' | ',
+						__( 'Trigger:', 'gsap-block-animator' ) + ' ' + gsapAnimation.trigger + ' | ',
+						__( 'Duration:', 'gsap-block-animator' ) + ' ' + gsapAnimation.timing.duration + 's',
+					].join( '' ) ),
+				] ),
 			] ),
 		);
 
 		return controls;
 	};
 
-
 	const renderCustomTabContent = ( tabName: string ): React.ReactElement => {
-		const containerStyle = { 
+		const containerStyle = {
 			padding: '16px',
 			display: 'grid',
 			gridTemplateColumns: '1fr 1fr',
 			gap: '16px',
-			'--control-width': '100%'
+			'--control-width': '100%',
 		};
 
 		switch ( tabName ) {
@@ -519,11 +516,11 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 	return createElement(
 		PanelBody,
 		{
-			title: gsapAnimation.enabled 
-				? `🎬 ${__( 'GSAP Animation', 'gsap-block-animator' )}` 
+			title: gsapAnimation.enabled
+				? `🎬 ${ __( 'GSAP Animation', 'gsap-block-animator' ) }`
 				: __( 'GSAP Animation', 'gsap-block-animator' ),
 			initialOpen: false,
-			className: `gsap-animation-panel ${gsapAnimation.enabled ? 'animation-enabled' : 'animation-disabled'}`,
+			className: `gsap-animation-panel ${ gsapAnimation.enabled ? 'animation-enabled' : 'animation-disabled' }`,
 		},
 		gsapAnimation.enabled && createElement( 'div', {
 			style: {
@@ -535,71 +532,71 @@ function GSAPAnimationPanel( { attributes, setAttributes, clientId }: GSAPAnimat
 				fontSize: '12px',
 				color: '#0073aa',
 			},
-		}, `✅ Animation active: ${gsapAnimation.type} on ${gsapAnimation.trigger}` ),
+		}, `✅ Animation active: ${ gsapAnimation.type } on ${ gsapAnimation.trigger }` ),
 		createElement( Button, {
 			isPrimary: true,
-			onClick: () => setIsModalOpen(true),
-			style: { width: '100%', marginBottom: '8px' }
+			onClick: () => setIsModalOpen( true ),
+			style: { width: '100%', marginBottom: '8px' },
 		}, __( 'Configure Animation', 'gsap-block-animator' ) ),
 		isModalOpen && createElement( Modal, {
 			title: __( 'GSAP Animation Settings', 'gsap-block-animator' ),
-			onRequestClose: () => setIsModalOpen(false),
+			onRequestClose: () => setIsModalOpen( false ),
 			className: 'gsap-animation-modal',
 			style: { width: '1000px', height: '600px', maxWidth: '1000px', maxHeight: '600px' },
 			children: createElement( 'div', {
 				className: 'gsap-modal-content',
-				style: { 
+				style: {
 					padding: '20px',
 					height: '100%',
-					overflow: 'auto'
-				}
-			},
-				createElement( 'div', {
-					className: 'gsap-custom-tabs',
-					style: {
-						display: 'flex',
-						flexDirection: 'column',
-						height: '100%'
-					}
+					overflow: 'auto',
 				},
-					createElement( 'div', {
-						className: 'gsap-tab-nav',
-						style: {
-							display: 'flex',
-							borderBottom: '1px solid #e2e8f0',
-							marginBottom: '20px',
-							paddingBottom: '0'
-						}
-					}, 
-						CONTROL_TABS.map((tab, index) => 
-							createElement( 'button', {
-								key: tab.name,
-								className: `gsap-tab-button ${currentTab === tab.name ? 'active' : ''}`,
-								onClick: () => setCurrentTab(tab.name),
-								style: {
-									background: 'none',
-									border: 'none',
-									padding: '8px 16px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: currentTab === tab.name ? '600' : '400',
-									color: currentTab === tab.name ? '#0073aa' : '#6b7280',
-									borderBottom: currentTab === tab.name ? '2px solid #0073aa' : '2px solid transparent',
-									transition: 'all 0.2s ease'
-								}
-							}, tab.title )
-						)
-					),
-					createElement( 'div', {
-						className: 'gsap-tab-content-wrapper',
-						style: {
-							flex: 1,
-							overflow: 'auto'
-						}
-					}, renderCustomTabContent(currentTab) )
-				)
-			)
-		} )
+			},
+			createElement( 'div', {
+				className: 'gsap-custom-tabs',
+				style: {
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%',
+				},
+			},
+			createElement( 'div', {
+				className: 'gsap-tab-nav',
+				style: {
+					display: 'flex',
+					borderBottom: '1px solid #e2e8f0',
+					marginBottom: '20px',
+					paddingBottom: '0',
+				},
+			},
+			CONTROL_TABS.map( ( tab ) =>
+				createElement( 'button', {
+					key: tab.name,
+					className: `gsap-tab-button ${ currentTab === tab.name ? 'active' : '' }`,
+					onClick: () => setCurrentTab( tab.name ),
+					style: {
+						background: 'none',
+						border: 'none',
+						padding: '8px 16px',
+						cursor: 'pointer',
+						fontSize: '14px',
+						fontWeight: currentTab === tab.name ? '600' : '400',
+						color: currentTab === tab.name ? '#0073aa' : '#6b7280',
+						borderBottom: currentTab === tab.name ? '2px solid #0073aa' : '2px solid transparent',
+						transition: 'all 0.2s ease',
+					},
+				}, tab.title ),
+			),
+			),
+			createElement( 'div', {
+				className: 'gsap-tab-content-wrapper',
+				style: {
+					flex: 1,
+					overflow: 'auto',
+				},
+			}, renderCustomTabContent( currentTab ) ),
+			),
+			),
+		} ),
 	);
 }
 
@@ -626,9 +623,9 @@ const withGSAPPanel = createHigherOrderComponent(
 				{},
 				createElement( BlockEdit, props ),
 				createElement(
-				InspectorControls as any,
-				null,
-				createElement( GSAPAnimationPanel, props ),
+					InspectorControls,
+					null,
+					createElement( GSAPAnimationPanel, props ),
 				),
 			);
 		};
@@ -661,7 +658,6 @@ function addGSAPAttributes( settings: Record<string, unknown>, name: string ) {
 		},
 	};
 }
-
 
 export { GSAPAnimationPanel, withGSAPPanel, addGSAPAttributes };
 export type { GSAPAnimationPanelProps };

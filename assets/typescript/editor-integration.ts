@@ -2,8 +2,7 @@ import * as React from 'react';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 // Import { InspectorControls } from '@wordpress/block-editor';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const { InspectorControls } = ( window.wp as any ).blockEditor;
+const { InspectorControls } = ( window.wp as unknown as { blockEditor: { InspectorControls: React.ComponentType<unknown> } } ).blockEditor;
 import { createElement } from '@wordpress/element';
 
 import { GSAPAnimationPanel, addGSAPAttributes } from './components/animation-panel/gsap-animation-panel';
@@ -24,8 +23,7 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.Compon
 			{},
 			createElement( BlockEdit, props ),
 			createElement(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				InspectorControls as any,
+				InspectorControls,
 				null,
 				createElement( GSAPAnimationPanel, props ),
 			),
@@ -53,14 +51,13 @@ const registerAnimationControls = (): void => {
 			'gsap-block-animator/add-attributes',
 			addGSAPAttributes,
 		);
-		
 		addFilter(
 			'editor.BlockEdit',
 			'gsap-block-animator/add-animation-controls',
 			withAnimationPanel,
 		);
 	} catch ( error ) {
-		console.error( 'GSAP Block Animator - Error registering animation controls:', error );
+		// Silent error handling for production
 	}
 };
 
