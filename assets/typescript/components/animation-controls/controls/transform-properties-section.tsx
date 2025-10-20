@@ -7,12 +7,15 @@ import type { AnimationProperties } from '../../../types/animation';
 interface TransformPropertiesSectionProps {
 	properties: Partial<AnimationProperties>;
 	updateProperty: ( key: string, value: unknown ) => void;
+	label?: string;
 }
 
 export class TransformPropertiesSection {
-	static render( { properties, updateProperty }: TransformPropertiesSectionProps ): JSX.Element {
+	static render( { properties, updateProperty, label }: TransformPropertiesSectionProps ): JSX.Element {
+		const sectionLabel = label || __( 'Transform Properties', 'gsap-block-animator' );
+
 		return BaseControlSection.render( {
-			label: __( 'Transform Properties', 'gsap-block-animator' ),
+			label: sectionLabel,
 			className: 'gsap-section-divider',
 			children: (
 				<div className="gsap-properties-grid">

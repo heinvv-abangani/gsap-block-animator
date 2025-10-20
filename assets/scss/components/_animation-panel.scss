@@ -5,6 +5,32 @@
 		}
 	}
 
+	&-animation-type-control {
+		margin-bottom: var(--gsap-spacing-md);
+	}
+
+	&-type-info-notice {
+		margin-top: var(--gsap-spacing-sm);
+		margin-bottom: var(--gsap-spacing-md);
+
+		.components-notice__content {
+			margin: 0;
+			line-height: var(--gsap-line-height-md);
+		}
+
+		p {
+			margin: var(--gsap-spacing-xs) 0;
+			
+			&:first-child {
+				margin-top: 0;
+			}
+			
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+
 	&-section-divider {
 		@include gsap-panel-section;
 		

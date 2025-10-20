@@ -68,6 +68,15 @@ export interface TimelineConfig {
 	scrollEnd?: string;
 }
 
+export interface ScrollTriggerConfig {
+	start?: string;
+	end?: string;
+	scrub?: boolean | number;
+	pin?: boolean;
+	markers?: boolean;
+	toggleActions?: string;
+}
+
 export interface AnimationConfig {
 	id?: string;
 	enabled: boolean;
@@ -75,8 +84,10 @@ export interface AnimationConfig {
 	trigger: TriggerType;
 	selector?: string;
 	properties: Partial<AnimationProperties>;
+	fromProperties?: Partial<AnimationProperties>;
 	timing: TimingProperties;
 	timeline?: TimelineConfig;
+	scrollTrigger?: ScrollTriggerConfig;
 }
 
 export interface Animation {

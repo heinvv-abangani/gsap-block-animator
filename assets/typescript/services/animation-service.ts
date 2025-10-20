@@ -120,10 +120,35 @@ export class AnimationService {
 	}
 
 	private extractBlockId( element: Element ): string {
-		const blockId = element.getAttribute( 'data-gsap-block-id' ) ||
-			element.getAttribute( 'data-block' ) ||
-			`fallback-${ Date.now() }`;
-		return blockId;
+		let blockId = element.getAttribute( 'data-gsap-block-id' ) ||
+			element.getAttribute( 'data-block' );
+		
+		if ( ! blockId && element.id && element.id.startsWith( 'block-' ) ) {
+			blockId = element.id.replace( 'block-', '' );
+		}
+		
+		if ( ! blockId ) {
+			let parentBlock = element.closest( '[data-block]' );
+			if ( ! parentBlock ) {
+				let current = element.parentElement;
+				while ( current ) {
+					if ( current.id && current.id.startsWith( 'block-' ) ) {
+						parentBlock = current;
+						break;
+					}
+					current = current.parentElement;
+				}
+			}
+			
+			if ( parentBlock ) {
+				blockId = parentBlock.getAttribute( 'data-block' );
+				if ( ! blockId && parentBlock.id && parentBlock.id.startsWith( 'block-' ) ) {
+					blockId = parentBlock.id.replace( 'block-', '' );
+				}
+			}
+		}
+		
+		return blockId || `fallback-${ Date.now() }`;
 	}
 
 	private storeOriginalState( blockId: string, element: Element ): void {
@@ -166,7 +191,7 @@ export class AnimationService {
 				timeline.from( target, properties );
 				break;
 			case 'fromTo':
-				timeline.fromTo( target, this.prepareFromProperties(), properties );
+				timeline.fromTo( target, this.prepareFromProperties( config ), properties );
 				break;
 			case 'set':
 				timeline.set( target, properties );
@@ -210,14 +235,25 @@ export class AnimationService {
 		}
 	}
 
-	private prepareFromProperties(): Record<string, unknown> {
-		return {
-			x: 0,
-			y: 0,
-			rotation: 0,
-			scale: 1,
-			opacity: 1,
-		};
+	private prepareFromProperties( config: AnimationConfig ): Record<string, unknown> {
+		const fromProperties: Record<string, unknown> = {};
+
+		if ( config.fromProperties ) {
+			this.addTransformProperties( fromProperties, { properties: config.fromProperties } as AnimationConfig );
+			this.addStyleProperties( fromProperties, { properties: config.fromProperties } as AnimationConfig );
+		}
+
+		if ( 0 === Object.keys( fromProperties ).length ) {
+			return {
+				x: 0,
+				y: 0,
+				rotation: 0,
+				scale: 1,
+				opacity: 1,
+			};
+		}
+
+		return fromProperties;
 	}
 
 	private configureTimelineCallbacks( timeline: GSAPTimeline, options: PreviewOptions ): void {
@@ -272,8 +308,33 @@ export class AnimationService {
 	}
 
 	private findElementByBlockId( blockId: string ): Element | null {
-		return document.querySelector( `[data-gsap-block-id="${ blockId }"]` ) ||
-			document.querySelector( `[data-block="${ blockId }"]` );
+		let element = document.querySelector( `[data-gsap-block-id="${ blockId }"]` );
+		
+		if ( ! element ) {
+			element = document.querySelector( `[data-block="${ blockId }"]` );
+		}
+		
+		if ( ! element ) {
+			element = document.querySelector( `.wp-block[data-block="${ blockId }"]` );
+		}
+		
+		if ( ! element ) {
+			const iframe = document.querySelector( 'iframe[name="editor-canvas"]' ) as HTMLIFrameElement;
+			const searchDocument = iframe && iframe.contentDocument ? iframe.contentDocument : document;
+			
+			const blockWrapper = searchDocument.getElementById( `block-${ blockId }` );
+			
+			if ( blockWrapper ) {
+				element = 
+					blockWrapper.querySelector( '.block-editor-block-list__block-edit .wp-block' ) ||
+					blockWrapper.querySelector( '.wp-block' ) ||
+					blockWrapper.querySelector( '[data-type]' ) ||
+					blockWrapper.querySelector( '[contenteditable]' ) ||
+					blockWrapper;
+			}
+		}
+		
+		return element;
 	}
 
 	private restoreOriginalState( blockId: string, element: Element ): void {
@@ -290,15 +351,23 @@ export class AnimationService {
 	private createScrollTrigger(
 		element: Element,
 		timeline: GSAPTimeline,
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		config: AnimationConfig,
 	): ScrollTrigger {
-		return ScrollTrigger.create( {
-			trigger: element,
+		const scrollConfig = config.scrollTrigger || {
 			start: 'top 80%',
 			end: 'bottom 20%',
-			animation: timeline,
 			toggleActions: 'play none none reverse',
+		};
+
+		return ScrollTrigger.create( {
+			trigger: element,
+			start: scrollConfig.start || 'top 80%',
+			end: scrollConfig.end || 'bottom 20%',
+			animation: timeline,
+			toggleActions: scrollConfig.toggleActions || 'play none none reverse',
+			scrub: scrollConfig.scrub !== undefined ? scrollConfig.scrub : false,
+			pin: scrollConfig.pin || false,
+			markers: scrollConfig.markers || false,
 		} ) as ScrollTrigger;
 	}
 

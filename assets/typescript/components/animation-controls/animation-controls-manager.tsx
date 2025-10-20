@@ -1,4 +1,5 @@
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import type { AnimationConfig, AnimationType, TriggerType } from '../../types/animation';
 
 import { AnimationToggleControl } from './controls/animation-toggle-control';
@@ -7,6 +8,7 @@ import { TriggerControl } from './controls/trigger-control';
 import { SelectorControl } from './controls/selector-control';
 import { TransformPropertiesSection } from './controls/transform-properties-section';
 import { TimingControlsSection } from './controls/timing-controls-section';
+import { ScrollTriggerControls } from './controls/scroll-trigger-controls';
 import { ActionButtonsSection } from './controls/action-buttons-section';
 import { ConfigSummarySection } from './controls/config-summary-section';
 
@@ -50,6 +52,7 @@ export class AnimationControlsManager {
 		return (
 			<Fragment>
 				{ this.renderBasicControls() }
+				{ 'scroll' === this.config.trigger && this.renderScrollTriggerControls() }
 				{ this.renderTransformProperties() }
 				{ this.renderTimingControls() }
 				{ this.renderActionButtons() }
@@ -78,6 +81,23 @@ export class AnimationControlsManager {
 	}
 
 	private renderTransformProperties(): JSX.Element {
+		if ( 'fromTo' === this.config.type ) {
+			return (
+				<Fragment>
+					{ TransformPropertiesSection.render( {
+						properties: this.config.fromProperties || {},
+						updateProperty: this.updateFromProperty.bind( this ),
+						label: __( 'From Properties (Starting Values)', 'gsap-block-animator' ),
+					} ) }
+					{ TransformPropertiesSection.render( {
+						properties: this.config.properties,
+						updateProperty: this.updateProperty.bind( this ),
+						label: __( 'To Properties (Ending Values)', 'gsap-block-animator' ),
+					} ) }
+				</Fragment>
+			);
+		}
+
 		return TransformPropertiesSection.render( {
 			properties: this.config.properties,
 			updateProperty: this.updateProperty.bind( this ),
@@ -88,6 +108,22 @@ export class AnimationControlsManager {
 		return TimingControlsSection.render( {
 			timing: this.config.timing,
 			updateTiming: this.updateTiming.bind( this ),
+		} );
+	}
+
+	private renderScrollTriggerControls(): JSX.Element {
+		const defaultScrollConfig = {
+			start: 'top 80%',
+			end: 'bottom 20%',
+			scrub: false,
+			pin: false,
+			markers: false,
+			toggleActions: 'play none none reverse',
+		};
+
+		return ScrollTriggerControls.render( {
+			scrollConfig: this.config.scrollTrigger || defaultScrollConfig,
+			updateScrollConfig: this.updateScrollTrigger.bind( this ),
 		} );
 	}
 
@@ -112,10 +148,28 @@ export class AnimationControlsManager {
 		} );
 	}
 
+	private updateFromProperty( key: string, value: unknown ): void {
+		this.onChange( {
+			fromProperties: {
+				...this.config.fromProperties,
+				[ key ]: value,
+			},
+		} );
+	}
+
 	private updateTiming( key: string, value: unknown ): void {
 		this.onChange( {
 			timing: {
 				...this.config.timing,
+				[ key ]: value,
+			},
+		} );
+	}
+
+	private updateScrollTrigger( key: string, value: unknown ): void {
+		this.onChange( {
+			scrollTrigger: {
+				...this.config.scrollTrigger,
 				[ key ]: value,
 			},
 		} );

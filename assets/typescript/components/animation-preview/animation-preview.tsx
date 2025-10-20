@@ -30,11 +30,40 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 	useEffect( clearErrorsOnConfigChange, [ clearErrorsOnConfigChange ] );
 
 	const findBlockElement = useCallback( (): Element => {
-		const blockElement = document.querySelector( `[data-block="${ blockId }"]` );
-		if ( ! blockElement ) {
-			throw new Error( __( 'Block element not found for preview', 'gsap-block-animator' ) );
+		console.log( '[GSAP Preview] Searching for block with ID:', blockId );
+		
+		const iframe = document.querySelector( 'iframe[name="editor-canvas"]' ) as HTMLIFrameElement;
+		const searchDocument = iframe && iframe.contentDocument ? iframe.contentDocument : document;
+		
+		console.log( '[GSAP Preview] Searching in:', iframe ? 'iframe' : 'main document' );
+		
+		const blockWrapper = searchDocument.getElementById( `block-${ blockId }` );
+		
+		if ( ! blockWrapper ) {
+			console.error( '[GSAP Preview] Block wrapper not found for ID:', blockId );
+			console.log( '[GSAP Preview] Available blocks:', 
+				Array.from( searchDocument.querySelectorAll( '[id^="block-"]' ) ).map( el => el.id )
+			);
+			throw new Error( __( 'Block wrapper not found. Please ensure the block is selected.', 'gsap-block-animator' ) );
 		}
-		return blockElement;
+		
+		console.log( '[GSAP Preview] Found block wrapper:', blockWrapper );
+		
+		const targetElement = 
+			blockWrapper.querySelector( '.block-editor-block-list__block-edit .wp-block' ) ||
+			blockWrapper.querySelector( '.wp-block' ) ||
+			blockWrapper.querySelector( '[data-type]' ) ||
+			blockWrapper.querySelector( '[contenteditable]' ) ||
+			blockWrapper;
+		
+		console.log( '[GSAP Preview] Target element:', targetElement );
+		console.log( '[GSAP Preview] Target element tag:', targetElement.tagName );
+		
+		if ( ! targetElement || ! targetElement.parentNode ) {
+			throw new Error( __( 'Block content element not found for preview.', 'gsap-block-animator' ) );
+		}
+		
+		return targetElement;
 	}, [ blockId ] );
 
 	const handleAnimationComplete = useCallback( () => {
@@ -54,24 +83,35 @@ export const AnimationPreview: React.FC<AnimationPreviewProps> = ( {
 
 	const playPreview = useCallback( async () => {
 		if ( ! config.enabled ) {
+			console.warn( '[GSAP Preview] Animation is disabled' );
 			return;
 		}
+
+		console.log( '[GSAP Preview] Starting preview for block:', blockId );
+		console.log( '[GSAP Preview] Config:', config );
 
 		setIsPlaying( true );
 		setError( null );
 
 		try {
 			const blockElement = findBlockElement();
+			console.log( '[GSAP Preview] Found element:', blockElement );
+			console.log( '[GSAP Preview] Element tag:', blockElement.tagName );
+			console.log( '[GSAP Preview] Element classes:', blockElement.className );
+			
 			await animationService.createPreview( {
 				element: blockElement,
 				config,
 				onComplete: handleAnimationComplete,
 				onError: handleAnimationError,
 			} );
+			
+			console.log( '[GSAP Preview] Animation started successfully' );
 		} catch ( err ) {
+			console.error( '[GSAP Preview] Error:', err );
 			handlePlayError( err );
 		}
-	}, [ config, findBlockElement, animationService, handleAnimationComplete, handleAnimationError, handlePlayError ] );
+	}, [ config, blockId, findBlockElement, animationService, handleAnimationComplete, handleAnimationError, handlePlayError ] );
 
 	const stopPreview = useCallback( () => {
 		animationService.stopPreview( blockId );

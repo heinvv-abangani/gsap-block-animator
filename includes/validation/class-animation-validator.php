@@ -39,6 +39,7 @@ class Animation_Validator {
 		$this->validate_type( $data );
 		$this->validate_trigger( $data );
 		$this->validate_properties( $data );
+		$this->validate_from_properties( $data );
 		$this->validate_timing( $data );
 		$this->validate_selector( $data );
 
@@ -127,14 +128,33 @@ class Animation_Validator {
 		}
 
 		foreach ( $data['properties'] as $key => $value ) {
-			$this->validate_property( $key, $value );
+			$this->validate_property( $key, $value, 'properties' );
 		}
 	}
 
-	private function validate_property( string $key, $value ): void {
+	private function validate_from_properties( array $data ): void {
+		if ( ! isset( $data['fromProperties'] ) ) {
+			return;
+		}
+
+		if ( ! is_array( $data['fromProperties'] ) ) {
+			$this->add_error( 'fromProperties', 'Must be an array' );
+			return;
+		}
+
+		if ( 'fromTo' === ( $data['type'] ?? '' ) && empty( $data['fromProperties'] ) ) {
+			$this->add_error( 'fromProperties', 'From properties are recommended when using fromTo animation type' );
+		}
+
+		foreach ( $data['fromProperties'] as $key => $value ) {
+			$this->validate_property( $key, $value, 'fromProperties' );
+		}
+	}
+
+	private function validate_property( string $key, $value, string $context = 'properties' ): void {
 		if ( ! in_array( $key, $this->rules['properties'], true ) ) {
 			$this->add_error(
-				"properties.{$key}",
+				"{$context}.{$key}",
 				sprintf(
 					'Invalid property. Allowed: %s',
 					implode( ', ', $this->rules['properties'] )
@@ -146,77 +166,77 @@ class Animation_Validator {
 		switch ( $key ) {
 			case 'x':
 			case 'y':
-				$this->validate_movement_property( $key, $value );
+				$this->validate_movement_property( $key, $value, $context );
 				break;
 			case 'rotation':
-				$this->validate_rotation_property( $key, $value );
+				$this->validate_rotation_property( $key, $value, $context );
 				break;
 			case 'scale':
-				$this->validate_scale_property( $key, $value );
+				$this->validate_scale_property( $key, $value, $context );
 				break;
 			case 'opacity':
-				$this->validate_opacity_property( $key, $value );
+				$this->validate_opacity_property( $key, $value, $context );
 				break;
 			case 'backgroundColor':
 			case 'color':
-				$this->validate_color_property( $key, $value );
+				$this->validate_color_property( $key, $value, $context );
 				break;
 			case 'width':
 			case 'height':
-				$this->validate_size_property( $key, $value );
+				$this->validate_size_property( $key, $value, $context );
 				break;
 		}
 	}
 
-	private function validate_movement_property( string $key, $value ): void {
+	private function validate_movement_property( string $key, $value, string $context = 'properties' ): void {
 		if ( is_numeric( $value ) ) {
 			return;
 		}
 
 		if ( ! is_string( $value ) || ! preg_match( self::SIGNED_CSS_UNIT_PATTERN, $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a number or valid CSS unit' );
+			$this->add_error( "{$context}.{$key}", 'Must be a number or valid CSS unit' );
 		}
 	}
 
-	private function validate_rotation_property( string $key, $value ): void {
+	private function validate_rotation_property( string $key, $value, string $context = 'properties' ): void {
 		if ( ! is_numeric( $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a number' );
+			$this->add_error( "{$context}.{$key}", 'Must be a number' );
 			return;
 		}
 
 		$numeric = (float) $value;
 		if ( $numeric < -360 || $numeric > 360 ) {
-			$this->add_error( "properties.{$key}", 'Must be between -360 and 360 degrees' );
+			$this->add_error( "{$context}.{$key}", 'Must be between -360 and 360 degrees' );
 		}
 	}
 
-	private function validate_scale_property( string $key, $value ): void {
+	private function validate_scale_property( string $key, $value, string $context = 'properties' ): void {
 		if ( ! is_numeric( $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a number' );
+			$this->add_error( "{$context}.{$key}", 'Must be a number' );
 			return;
 		}
 
 		$numeric = (float) $value;
 		if ( $numeric < 0.1 || $numeric > 10 ) {
-			$this->add_error( "properties.{$key}", 'Must be between 0.1 and 10' );
+			$this->add_error( "{$context}.{$key}", 'Must be between 0.1 and 10' );
 		}
 	}
 
-	private function validate_opacity_property( string $key, $value ): void {
+	private function validate_opacity_property( string $key, $value, string $context = 'properties' ): void {
 		if ( ! is_numeric( $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a number' );
+			$this->add_error( "{$context}.{$key}", 'Must be a number' );
 			return;
 		}
 
 		$numeric = (float) $value;
 		if ( $numeric < 0 || $numeric > 1 ) {
-			$this->add_error( "properties.{$key}", 'Must be between 0 and 1' );
+			$this->add_error( "{$context}.{$key}", 'Must be between 0 and 1' );
 		}
 	}
 
-	private function validate_color_property( string $key, $value ): void {
+	private function validate_color_property( string $key, $value, string $context = 'properties' ): void {
 		if ( ! is_string( $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a string' );
+			$this->add_error( "{$context}.{$key}", 'Must be a string' );
 			return;
 		}
 
@@ -225,17 +245,17 @@ class Animation_Validator {
 		$is_keyword = in_array( strtolower( $value ), array( 'transparent', 'inherit', 'initial', 'unset' ), true );
 
 		if ( ! $is_hex && ! $is_rgb && ! $is_keyword ) {
-			$this->add_error( "properties.{$key}", 'Must be a valid color (hex, rgb, or keyword)' );
+			$this->add_error( "{$context}.{$key}", 'Must be a valid color (hex, rgb, or keyword)' );
 		}
 	}
 
-	private function validate_size_property( string $key, $value ): void {
+	private function validate_size_property( string $key, $value, string $context = 'properties' ): void {
 		if ( is_numeric( $value ) ) {
 			return;
 		}
 
 		if ( ! is_string( $value ) || ! preg_match( self::POSITIVE_CSS_UNIT_PATTERN, $value ) ) {
-			$this->add_error( "properties.{$key}", 'Must be a positive number or valid CSS unit' );
+			$this->add_error( "{$context}.{$key}", 'Must be a positive number or valid CSS unit' );
 		}
 	}
 
