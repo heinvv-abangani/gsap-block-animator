@@ -2,11 +2,10 @@ import * as React from 'react';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 // Import { InspectorControls } from '@wordpress/block-editor';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const { InspectorControls } = ( window.wp as any ).blockEditor;
+const { InspectorControls } = ( window.wp as unknown as { blockEditor: { InspectorControls: React.ComponentType<unknown> } } ).blockEditor;
 import { createElement } from '@wordpress/element';
 
-import { AnimationPanel } from './components/animation-panel/animation-panel';
+import { GSAPAnimationPanel, addGSAPAttributes } from './components/animation-panel/gsap-animation-panel';
 import type { BlockEditProps } from './types/block';
 
 // Global types handled in types/global.d.ts
@@ -24,10 +23,9 @@ const withAnimationPanel = createHigherOrderComponent( ( BlockEdit: React.Compon
 			{},
 			createElement( BlockEdit, props ),
 			createElement(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				InspectorControls as any,
+				InspectorControls,
 				null,
-				createElement( AnimationPanel, props ),
+				createElement( GSAPAnimationPanel, props ),
 			),
 		);
 	};
@@ -49,12 +47,17 @@ const shouldSkipBlock = ( blockName: string ): boolean => {
 const registerAnimationControls = (): void => {
 	try {
 		addFilter(
+			'blocks.registerBlockType',
+			'gsap-block-animator/add-attributes',
+			addGSAPAttributes,
+		);
+		addFilter(
 			'editor.BlockEdit',
 			'gsap-block-animator/add-animation-controls',
 			withAnimationPanel,
 		);
 	} catch ( error ) {
-		// Silently handle registration errors
+		// Silent error handling for production
 	}
 };
 
